@@ -57,6 +57,13 @@ public:
     return *this = (Type*)theOther;
   }
 
+  JtData_SingleHandle& operator = (const JtData_SingleHandle& theOther)
+  {
+    Type* anObject = theOther.myObject;
+    theOther.myObject = 0L;
+    return *this = anObject;
+  }
+
   operator Type*()
   {
     Type* anObject = myObject;
@@ -70,7 +77,7 @@ public:
   Type& operator *  () const { return *myObject; }
 
 protected:
-  Type* myObject;
+  mutable Type* myObject;
 };
 
 #endif // _JtData_SingleHandle_HeaderFile

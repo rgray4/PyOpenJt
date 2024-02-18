@@ -26,16 +26,16 @@ public:
   JtElement_XTBRep() : myVersion (0), myPKMajorVersion (0), myPKMinorVersion (0), myPKBuild (0) {}
 
   //! Read this entity from a JT file.
-  Standard_EXPORT virtual Standard_Boolean Read (JtData_Reader &theReader);
+  Standard_EXPORT Standard_Boolean Read (JtData_Reader &theReader) Standard_OVERRIDE;
 
   //! Dump this entity.
-  Standard_EXPORT virtual Standard_Integer Dump (Standard_OStream& S) const;
+  Standard_EXPORT Standard_Integer Dump (Standard_OStream& S) const Standard_OVERRIDE;
 
   const Jt_String& Data() const { return myData; }
 
   void ClearData() { myData.Free(); }
 
-  DEFINE_STANDARD_RTTI(JtElement_XTBRep)
+  DEFINE_STANDARD_RTTIEXT(JtElement_XTBRep,JtData_Object)
   DEFINE_OBJECT_CLASS (JtElement_XTBRep)
 
 protected:

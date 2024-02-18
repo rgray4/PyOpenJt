@@ -30,7 +30,7 @@ public:
 protected:
 
   //! Decode the data.
-  Standard_EXPORT virtual void decode (int32_t* theResultPtr, int32_t* theResultEnd);
+  Standard_EXPORT void decode (int32_t* theResultPtr, int32_t* theResultEnd) Standard_OVERRIDE;
 
   Standard_EXPORT void decodeVariableWidth (int32_t* theResultPtr, int32_t* theResultEnd);
   Standard_EXPORT void decodeFixedWidth    (int32_t* theResultPtr, int32_t* theResultEnd);

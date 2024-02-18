@@ -118,6 +118,16 @@ public:
   //! Read a 2-byte character string.
   Standard_Boolean ReadMbString (TCollection_ExtendedString& theString);
 
+  Standard_Boolean ReadObject(char16_t &theObject)
+  {
+    Jt_I16 theValue;
+    if (ReadI16(theValue)) {
+      theObject = theValue;
+      return Standard_True;
+    }
+    return Standard_False;
+  }
+
 protected:
   Handle(JtData_Model) myModel;
   Standard_Boolean     myNeedSwap;

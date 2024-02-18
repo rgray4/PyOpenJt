@@ -25,12 +25,12 @@ class JtNode_MetaData : public JtNode_Group
 {
 public:
   //! Read this entity from a JT file.
-  Standard_EXPORT virtual Standard_Boolean Read (JtData_Reader& theReader);
+  Standard_EXPORT Standard_Boolean Read (JtData_Reader& theReader) Standard_OVERRIDE;
 
   //! Dump this entity.
-  Standard_EXPORT virtual Standard_Integer Dump (Standard_OStream& theStream) const;
+  Standard_EXPORT Standard_Integer Dump (Standard_OStream& theStream) const Standard_OVERRIDE;
 
-  DEFINE_STANDARD_RTTI(JtNode_MetaData)
+  DEFINE_STANDARD_RTTIEXT(JtNode_MetaData,JtNode_Group)
   DEFINE_OBJECT_CLASS (JtNode_MetaData)
 };
 

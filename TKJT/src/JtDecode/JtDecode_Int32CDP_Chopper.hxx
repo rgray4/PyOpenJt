@@ -33,10 +33,10 @@ public:
     , myBias    (theBias) {}
 
   //! Get expected count of output values.
-  Standard_EXPORT virtual int32_t GetOutValCount() const;
+  Standard_EXPORT int32_t GetOutValCount() const Standard_OVERRIDE;
 
   //! Decode the loaded data.
-  Standard_EXPORT virtual Decoded::Mover Decode();
+  Standard_EXPORT Decoded::Mover Decode() Standard_OVERRIDE;
 
 private:
   JtDecode_Int32CDP myMSBData;

@@ -24,10 +24,10 @@ class JtProperty_LateLoaded : public JtProperty_Base
 {
 public:
   //! Read this entity from a JT file.
-  Standard_EXPORT virtual Standard_Boolean Read (JtData_Reader& theReader);
+  Standard_EXPORT Standard_Boolean Read (JtData_Reader& theReader) Standard_OVERRIDE;
 
   //! Dump this entity.
-  Standard_EXPORT virtual Standard_Integer Dump (Standard_OStream& theStream) const;
+  Standard_EXPORT Standard_Integer Dump (Standard_OStream& theStream) const Standard_OVERRIDE;
 
   //! Load object from the referenced JT file segment.
   void Load() { myDefferedObject = mySegModel->ReadSegment (mySegOffset); }
@@ -36,7 +36,7 @@ public:
 
   void Unload() { myDefferedObject.Nullify(); }
 
-  DEFINE_STANDARD_RTTI(JtProperty_LateLoaded)
+  DEFINE_STANDARD_RTTIEXT(JtProperty_LateLoaded,JtProperty_Base)
   DEFINE_OBJECT_CLASS (JtProperty_LateLoaded)
 
 protected:

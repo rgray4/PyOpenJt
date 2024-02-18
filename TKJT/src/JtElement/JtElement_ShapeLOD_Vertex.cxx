@@ -31,7 +31,6 @@
 //#define NO_JT_MULTITHREADING
 #include <JtData_Parallel.hxx>
 
-IMPLEMENT_STANDARD_HANDLE (JtElement_ShapeLOD_Vertex, JtElement_ShapeLOD_Base)
 IMPLEMENT_STANDARD_RTTIEXT(JtElement_ShapeLOD_Vertex, JtElement_ShapeLOD_Base)
 
 IMPLEMENT_OBJECT_CLASS(JtElement_ShapeLOD_Vertex, "Vertex Shape LOD Object",
@@ -320,8 +319,9 @@ Standard_Boolean JtElement_ShapeLOD_Vertex::readVertexBasedShapeCompressedRepDat
     aPimitiveListIndices = anEncodedPimitiveListIndices.DecodeI32 (JtDecode_Unpack_Stride1);
   }
   Jt_I32 aNbPrimitives = aPimitiveListIndices.Count() - 1;
-  if (aNbPrimitives <= 0)
-      return Standard_False;
+  // In case 'aPimitiveListIndices' is empty
+  if (aNbPrimitives < 0)
+    return Standard_False;
   Jt_I32 aNbFaces = aPimitiveListIndices.Last() - aPimitiveListIndices.First() - aNbPrimitives * 2;
 
   // Read raw vertex data

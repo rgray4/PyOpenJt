@@ -49,10 +49,10 @@ public:
 
 protected:
   //! Get expected count of output components.
-  Standard_EXPORT virtual Standard_Integer getOutCompCount (Standard_Size thePackageCount);
+  Standard_EXPORT Standard_Integer getOutCompCount (Standard_Size thePackageCount) Standard_OVERRIDE;
 
   //! Decoding method.
-  Standard_EXPORT virtual void decode (Decoded::Ref theResults);
+  Standard_EXPORT void decode (Decoded::Ref theResults) Standard_OVERRIDE;
 
   PointQuantizerData myQuantizerData;
 };

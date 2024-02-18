@@ -29,13 +29,13 @@ public:
                                      const std::ifstream::pos_type theOffset = -1);
 
   //! Read raw bytes from the stream.
-  Standard_EXPORT virtual Standard_Boolean ReadBytes (void* theBuffer, Standard_Size theLength);
+  Standard_EXPORT Standard_Boolean ReadBytes (void* theBuffer, Standard_Size theLength) Standard_OVERRIDE;
 
   //! Skip some bytes.
-  Standard_EXPORT virtual Standard_Boolean SkipBytes (Standard_Size theLength);
+  Standard_EXPORT Standard_Boolean SkipBytes (Standard_Size theLength) Standard_OVERRIDE;
 
   //! Get absolute reading position.
-  Standard_EXPORT virtual Standard_Size GetPosition() const;
+  Standard_EXPORT Standard_Size GetPosition() const Standard_OVERRIDE;
 
 protected:
   std::ifstream* myFile;

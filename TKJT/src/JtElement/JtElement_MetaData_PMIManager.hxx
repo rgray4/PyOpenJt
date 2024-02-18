@@ -188,10 +188,10 @@ public:
 
 public:
   //! Read this entity from a JT file.
-  Standard_EXPORT virtual Standard_Boolean Read (JtData_Reader& theReader);
+  Standard_EXPORT Standard_Boolean Read (JtData_Reader& theReader) Standard_OVERRIDE;
 
   //! Dump this entity.
-  Standard_EXPORT virtual Standard_Integer Dump (Standard_OStream& theStream) const;
+  Standard_EXPORT Standard_Integer Dump (Standard_OStream& theStream) const Standard_OVERRIDE;
 
   //! Entities.
   const Entities& GetEntities() const { return myEntities; }
@@ -199,7 +199,7 @@ public:
   //! Obtain string by ID.
   const TCollection_AsciiString& String (Jt_I32 theID) const { return myStringTable[theID]; }
 
-  DEFINE_STANDARD_RTTI(JtElement_MetaData_PMIManager)
+  DEFINE_STANDARD_RTTIEXT(JtElement_MetaData_PMIManager,JtData_Object)
   DEFINE_OBJECT_CLASS (JtElement_MetaData_PMIManager)
 
 protected:

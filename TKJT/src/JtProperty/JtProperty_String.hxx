@@ -24,15 +24,15 @@ class JtProperty_String : public JtProperty_Base
 {
 public:
   //! Read this entity from a JT file.
-  Standard_EXPORT virtual Standard_Boolean Read (JtData_Reader& theReader);
+  Standard_EXPORT Standard_Boolean Read (JtData_Reader& theReader) Standard_OVERRIDE;
 
   //! Dump this entity.
-  Standard_EXPORT virtual Standard_Integer Dump (Standard_OStream& theStream) const;
+  Standard_EXPORT Standard_Integer Dump (Standard_OStream& theStream) const Standard_OVERRIDE;
 
   //! Get the property value.
   const TCollection_ExtendedString& Value() const { return myValue; }
 
-  DEFINE_STANDARD_RTTI(JtProperty_String)
+  DEFINE_STANDARD_RTTIEXT(JtProperty_String,JtProperty_Base)
   DEFINE_OBJECT_CLASS (JtProperty_String)
 
 protected:

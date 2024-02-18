@@ -25,16 +25,16 @@ class JtNode_Base : public JtData_Object
 {
 public:
   //! Read this entity from a JT file.
-  Standard_EXPORT virtual Standard_Boolean Read (JtData_Reader& theReader);
+  Standard_EXPORT Standard_Boolean Read (JtData_Reader& theReader) Standard_OVERRIDE;
 
   //! Dump this entity.
-  Standard_EXPORT virtual Standard_Integer Dump (Standard_OStream& theStream) const;
+  Standard_EXPORT Standard_Integer Dump (Standard_OStream& theStream) const Standard_OVERRIDE;
 
   //! Bind other objects to the object.
-  Standard_EXPORT virtual void BindObjects (const MapOfObjects& theObjectsMap);
+  Standard_EXPORT void BindObjects (const MapOfObjects& theObjectsMap) Standard_OVERRIDE;
 
   //! Bind a name to the object.
-  Standard_EXPORT virtual void BindName (const TCollection_ExtendedString& theName);
+  Standard_EXPORT void BindName (const TCollection_ExtendedString& theName) Standard_OVERRIDE;
 
   //! Return object's attributes.
   const VectorOfObjects& Attributes() const { return myAttributes; }
@@ -42,7 +42,7 @@ public:
   //! Return node's name.
   const TCollection_ExtendedString& Name() const { return myName; }
 
-  DEFINE_STANDARD_RTTI(JtNode_Base)
+  DEFINE_STANDARD_RTTIEXT(JtNode_Base,JtData_Object)
   DEFINE_OBJECT_CLASS (JtNode_Base)
 
 protected:

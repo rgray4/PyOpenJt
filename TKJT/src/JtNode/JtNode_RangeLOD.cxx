@@ -17,7 +17,6 @@
 #include <JtNode_RangeLOD.hxx>
 #include <JtData_Reader.hxx>
 
-IMPLEMENT_STANDARD_HANDLE (JtNode_RangeLOD, JtNode_LOD)
 IMPLEMENT_STANDARD_RTTIEXT(JtNode_RangeLOD, JtNode_LOD)
 
 IMPLEMENT_OBJECT_CLASS(JtNode_RangeLOD, "RangeLOD Object",
@@ -47,9 +46,11 @@ Standard_Boolean JtNode_RangeLOD::Read (JtData_Reader& theReader)
 //=======================================================================
 Standard_Integer JtNode_RangeLOD::Dump (Standard_OStream& theStream) const
 {
-  theStream << "JtNode_LOD { ";
+  /*
+	theStream << "JtNode_LOD { ";
   for (VectorOfObjects::SizeType i = 0; i < myChildren.Count(); i++)
     theStream << myChildren[i] << " ";
   theStream << "} ";
+  */
   return JtNode_Base::Dump (theStream);
 }

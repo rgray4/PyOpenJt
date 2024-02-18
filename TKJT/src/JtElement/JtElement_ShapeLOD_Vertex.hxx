@@ -88,10 +88,10 @@ public:
 
 public:
   //! Read this entity from a JT file.
-  Standard_EXPORT virtual Standard_Boolean Read (JtData_Reader &theReader);
+  Standard_EXPORT Standard_Boolean Read (JtData_Reader &theReader) Standard_OVERRIDE;
 
   //! Dump this entity.
-  Standard_EXPORT virtual Standard_Integer Dump (Standard_OStream& S) const;
+  Standard_EXPORT Standard_Integer Dump (Standard_OStream& S) const Standard_OVERRIDE;
 
   //! Indices into the vertex parameters arrays.
   const IndicesVec& Indices()  const { return myIndices; }
@@ -102,7 +102,7 @@ public:
   //! Normals; can be empty if there is no normals data.
   const VertexData& Normals()  const { return myNormals; }
 
-  DEFINE_STANDARD_RTTI(JtElement_ShapeLOD_Vertex)
+  DEFINE_STANDARD_RTTIEXT(JtElement_ShapeLOD_Vertex,JtElement_ShapeLOD_Base)
   DEFINE_OBJECT_CLASS (JtElement_ShapeLOD_Vertex)
 
 protected:

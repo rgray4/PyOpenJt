@@ -24,12 +24,12 @@ class JtNode_Shape_Vertex : public JtNode_Shape_Base
 {
 public:
   //! Read this entity from a JT file.
-  Standard_EXPORT virtual Standard_Boolean Read (JtData_Reader &theReader);
+  Standard_EXPORT Standard_Boolean Read (JtData_Reader &theReader) Standard_OVERRIDE;
 
   //! Dump this entity.
-  Standard_EXPORT virtual Standard_Integer Dump (Standard_OStream& S) const;
+  Standard_EXPORT Standard_Integer Dump (Standard_OStream& S) const Standard_OVERRIDE;
 
-  DEFINE_STANDARD_RTTI(JtNode_Shape_Vertex)
+  DEFINE_STANDARD_RTTIEXT(JtNode_Shape_Vertex,JtNode_Shape_Base)
   DEFINE_OBJECT_CLASS (JtNode_Shape_Vertex)
 };
 

@@ -27,10 +27,10 @@ public:
   Standard_EXPORT JtAttribute_Material();
 
   //! Read this entity from a JT file.
-  Standard_EXPORT virtual Standard_Boolean Read (JtData_Reader& theReader);
+  Standard_EXPORT Standard_Boolean Read (JtData_Reader& theReader) Standard_OVERRIDE;
 
   //! Dump this entity.
-  Standard_EXPORT virtual Standard_Integer Dump (Standard_OStream& theStream) const;
+  Standard_EXPORT Standard_Integer Dump (Standard_OStream& theStream) const Standard_OVERRIDE;
 
   //! Return ambient color.
   const Jt_F32* AmbientColor()  const { return myAmbientColor;  }
@@ -50,7 +50,7 @@ public:
   //! Return reflectivity.
   Jt_F32        Reflectivity()  const { return myReflectivity;  }
 
-  DEFINE_STANDARD_RTTI(JtAttribute_Material)
+  DEFINE_STANDARD_RTTIEXT(JtAttribute_Material,JtAttribute_Base)
   DEFINE_OBJECT_CLASS (JtAttribute_Material)
 
 protected:

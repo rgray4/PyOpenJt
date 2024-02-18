@@ -18,7 +18,6 @@
 #include <JtData_Reader.hxx>
 #include <JtData_DeferredObject.hxx>
 
-IMPLEMENT_STANDARD_HANDLE (JtNode_Group, JtNode_Base)
 IMPLEMENT_STANDARD_RTTIEXT(JtNode_Group, JtNode_Base)
 
 IMPLEMENT_OBJECT_CLASS(JtNode_Group, "Group Object",
@@ -47,10 +46,12 @@ Standard_Boolean JtNode_Group::Read (JtData_Reader& theReader)
 //=======================================================================
 Standard_Integer JtNode_Group::Dump (Standard_OStream& theStream) const
 {
-  theStream << "JtNode_Group { ";
+  /*
+	theStream << "JtNode_Group { ";
   for (VectorOfObjects::SizeType i = 0; i < myChildren.Count(); i++)
     theStream << myChildren[i] << " ";
   theStream << "} ";
+  */
   return JtNode_Base::Dump (theStream);
 }
 

@@ -32,13 +32,13 @@ public:
   Standard_EXPORT virtual ~JtData_Inflate();
 
   //! Buffered inflate raw bytes.
-  Standard_EXPORT virtual Standard_Boolean ReadBytes (void* theBuffer, Standard_Size theLength);
+  Standard_EXPORT Standard_Boolean ReadBytes (void* theBuffer, Standard_Size theLength) Standard_OVERRIDE;
 
   //! Skip some bytes.
-  Standard_EXPORT virtual Standard_Boolean SkipBytes (Standard_Size theLength);
+  Standard_EXPORT Standard_Boolean SkipBytes (Standard_Size theLength) Standard_OVERRIDE;
 
   //! Get absolute reading position in the inflated data.
-  Standard_EXPORT virtual Standard_Size GetPosition() const;
+  Standard_EXPORT Standard_Size GetPosition() const Standard_OVERRIDE;
 
 protected:
   Standard_Size read (Bytef* theBuffer, Standard_Size theLength);

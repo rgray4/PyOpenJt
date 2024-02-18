@@ -25,12 +25,12 @@ class JtElement_ShapeLOD_TriStripSet : public JtElement_ShapeLOD_Vertex
 {
 public:
   //! Read this entity from a JT file.
-  Standard_EXPORT virtual Standard_Boolean Read (JtData_Reader& theReader);
+  Standard_EXPORT Standard_Boolean Read (JtData_Reader& theReader) Standard_OVERRIDE;
 
   //! Dump this entity.
-  Standard_EXPORT virtual Standard_Integer Dump (Standard_OStream& theStream) const;
+  Standard_EXPORT Standard_Integer Dump (Standard_OStream& theStream) const Standard_OVERRIDE;
 
-  DEFINE_STANDARD_RTTI(JtElement_ShapeLOD_TriStripSet)
+  DEFINE_STANDARD_RTTIEXT(JtElement_ShapeLOD_TriStripSet,JtElement_ShapeLOD_Vertex)
   DEFINE_OBJECT_CLASS (JtElement_ShapeLOD_TriStripSet)
 };
 

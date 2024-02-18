@@ -25,18 +25,18 @@ class JtNode_Part : public JtNode_MetaData
 {
 public:
   //! Read this entity from a JT file.
-  Standard_EXPORT virtual Standard_Boolean Read (JtData_Reader& theReader);
+  Standard_EXPORT Standard_Boolean Read (JtData_Reader& theReader) Standard_OVERRIDE;
 
   //! Dump this entity.
-  Standard_EXPORT virtual Standard_Integer Dump (Standard_OStream& theStream) const;
+  Standard_EXPORT Standard_Integer Dump (Standard_OStream& theStream) const Standard_OVERRIDE;
 
   //! Bind a late loaded property to the object.
-  Standard_EXPORT virtual void BindLateLoads (const ListOfLateLoads& theLateLoads);
+  Standard_EXPORT void BindLateLoads (const ListOfLateLoads& theLateLoads) Standard_OVERRIDE;
 
   //! Get the late loaded properties associated with this node.
   const VectorOfLateLoads& LateLoads() const { return myLateLoads; }
 
-  DEFINE_STANDARD_RTTI(JtNode_Part)
+  DEFINE_STANDARD_RTTIEXT(JtNode_Part,JtNode_MetaData)
   DEFINE_OBJECT_CLASS (JtNode_Part)
 
 protected:

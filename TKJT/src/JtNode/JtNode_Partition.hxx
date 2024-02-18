@@ -27,10 +27,10 @@ class JtNode_Partition : public JtNode_Group
 {
 public:
   //! Read this entity from a JT file.
-  Standard_EXPORT virtual Standard_Boolean Read (JtData_Reader& theReader);
+  Standard_EXPORT Standard_Boolean Read (JtData_Reader& theReader) Standard_OVERRIDE;
 
   //! Dump this entity.
-  Standard_EXPORT virtual Standard_Integer Dump (Standard_OStream& theStream) const;
+  Standard_EXPORT Standard_Integer Dump (Standard_OStream& theStream) const Standard_OVERRIDE;
 
   //! Load the referenced JT file and bind its LSG to this node.
   Standard_EXPORT Standard_Boolean Load();
@@ -41,7 +41,7 @@ public:
   //! Returns file name.
   const TCollection_ExtendedString& FileName() const { return myFileName; }
 
-  DEFINE_STANDARD_RTTI(JtNode_Partition)
+  DEFINE_STANDARD_RTTIEXT(JtNode_Partition,JtNode_Group)
   DEFINE_OBJECT_CLASS (JtNode_Partition)
 
 protected:
