@@ -7,7 +7,7 @@
 # You may choose between them for generating a complete solution configured
 # for all-sufficient build and installation of the project.
 
-cmake_minimum_required (VERSION 2.8.10 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.12)
 
 project (JT)
 

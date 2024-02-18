@@ -180,6 +180,7 @@ else()
   target_link_libraries_config_aware (TKJT OCE)
   target_link_libraries_config_aware (TKJT TBB)
   target_link_libraries_config_aware (TKJT ZLIB)
+  target_link_libraries(TKJT TBB::tbb)
 
   if (BUILD_PROJECT STREQUAL "TKJT")
     set_target_properties (TKJT PROPERTIES PUBLIC_HEADER "${TKJT_HEADERS}")
