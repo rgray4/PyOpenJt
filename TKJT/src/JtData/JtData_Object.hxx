@@ -17,7 +17,7 @@
 #ifndef _JtData_Object_HeaderFile
 #define _JtData_Object_HeaderFile
 
-#include <MMgt_TShared.hxx>
+#include <Standard_Transient.hxx>
 #include <Standard_DefineHandle.hxx>
 #include <NCollection_List.hxx>
 #include <TCollection_ExtendedString.hxx>
@@ -28,7 +28,7 @@
 class JtData_Reader;
 class JtProperty_LateLoaded;
 
-DEFINE_STANDARD_HANDLE(JtData_Object, MMgt_TShared)
+DEFINE_STANDARD_HANDLE(JtData_Object, Standard_Transient)
 
 //! The base class representing Jt entity.
 class JtData_Object : public Standard_Transient

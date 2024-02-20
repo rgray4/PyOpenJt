@@ -54,7 +54,7 @@ void JTData_LoadingQueue::Enqueue (const JTData_WorkItem& theQuery)
   {
     myQueue.push_back (theQuery);
 
-    mySet.insert (theQuery.LateLoaded().Access());
+    mySet.insert (&*theQuery.LateLoaded());
 
     myCondition.wakeOne();
   }
@@ -80,7 +80,7 @@ JTData_WorkItem JTData_LoadingQueue::Fetch()
 
     aQuery = myQueue.takeFirst();
 
-    mySet.remove (aQuery.LateLoaded().Access());
+    mySet.remove (&*aQuery.LateLoaded());
   }
   myMutex.unlock();
 
@@ -114,7 +114,7 @@ Standard_Boolean JTData_LoadingQueue::Enqueued (const JTData_WorkItem& theQuery)
 
   myMutex.lock();
   {
-    if (mySet.find (theQuery.LateLoaded().Access()) != mySet.end())
+    if (mySet.find (&*theQuery.LateLoaded()) != mySet.end())
     {
       anIsEnqueued = Standard_True;
     }

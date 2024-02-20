@@ -860,33 +860,33 @@ void JTVis_Scene::Resize (int theWidth, int theHeight)
 void JTVis_Scene::PrepareShaders()
 {
   myShaderProgram = new QOpenGLShaderProgram (/*this*/);
-  myShaderProgram->addShaderFromSourceFile (QOpenGLShader::Vertex,   ":/shaders/src/JTVis/Shaders/default.vert");
-  myShaderProgram->addShaderFromSourceFile (QOpenGLShader::Fragment, ":/shaders/src/JTVis/Shaders/default.frag");
+  myShaderProgram->addShaderFromSourceFile (QOpenGLShader::Vertex,   ":/Shaders/default.vert");
+  myShaderProgram->addShaderFromSourceFile (QOpenGLShader::Fragment, ":/Shaders/default.frag");
   myShaderProgram->link();
 
   myLinesShaderProgram = new QOpenGLShaderProgram (/*this*/);
-  myLinesShaderProgram->addShaderFromSourceFile (QOpenGLShader::Vertex,   ":/shaders/src/JTVis/Shaders/lineShader.vert");
-  myLinesShaderProgram->addShaderFromSourceFile (QOpenGLShader::Fragment, ":/shaders/src/JTVis/Shaders/lineShader.frag");
+  myLinesShaderProgram->addShaderFromSourceFile (QOpenGLShader::Vertex,   ":/Shaders/lineShader.vert");
+  myLinesShaderProgram->addShaderFromSourceFile (QOpenGLShader::Fragment, ":/Shaders/lineShader.frag");
   myLinesShaderProgram->link();
 
   myTexQuadShaderProgram = new QOpenGLShaderProgram (/*this*/);
-  myTexQuadShaderProgram->addShaderFromSourceFile (QOpenGLShader::Vertex,   ":/shaders/src/JTVis/Shaders/texQuadShader.vert");
-  myTexQuadShaderProgram->addShaderFromSourceFile (QOpenGLShader::Fragment, ":/shaders/src/JTVis/Shaders/texQuadShader.frag");
+  myTexQuadShaderProgram->addShaderFromSourceFile (QOpenGLShader::Vertex,   ":/Shaders/texQuadShader.vert");
+  myTexQuadShaderProgram->addShaderFromSourceFile (QOpenGLShader::Fragment, ":/Shaders/texQuadShader.frag");
   myTexQuadShaderProgram->link();
 
   myBgShaderProgram = new QOpenGLShaderProgram (/*this*/);
-  myBgShaderProgram->addShaderFromSourceFile (QOpenGLShader::Vertex,   ":/shaders/src/JTVis/Shaders/bgShader.vert");
-  myBgShaderProgram->addShaderFromSourceFile (QOpenGLShader::Fragment, ":/shaders/src/JTVis/Shaders/bgShader.frag");
+  myBgShaderProgram->addShaderFromSourceFile (QOpenGLShader::Vertex,   ":/Shaders/bgShader.vert");
+  myBgShaderProgram->addShaderFromSourceFile (QOpenGLShader::Fragment, ":/Shaders/bgShader.frag");
   myBgShaderProgram->link();
 
   myIdShaderProgram = new QOpenGLShaderProgram (/*this*/);
-  myIdShaderProgram->addShaderFromSourceFile (QOpenGLShader::Vertex,   ":/shaders/src/JTVis/Shaders/idShader.vert");
-  myIdShaderProgram->addShaderFromSourceFile (QOpenGLShader::Fragment, ":/shaders/src/JTVis/Shaders/idShader.frag");
+  myIdShaderProgram->addShaderFromSourceFile (QOpenGLShader::Vertex,   ":/Shaders/idShader.vert");
+  myIdShaderProgram->addShaderFromSourceFile (QOpenGLShader::Fragment, ":/Shaders/idShader.frag");
   myIdShaderProgram->link();
 
   myTrihedronShaderProgram = new QOpenGLShaderProgram (/*this*/);
-  myTrihedronShaderProgram->addShaderFromSourceFile (QOpenGLShader::Vertex,   ":/shaders/src/JTVis/Shaders/trihedronShader.vert");
-  myTrihedronShaderProgram->addShaderFromSourceFile (QOpenGLShader::Fragment, ":/shaders/src/JTVis/Shaders/trihedronShader.frag");
+  myTrihedronShaderProgram->addShaderFromSourceFile (QOpenGLShader::Vertex,   ":/Shaders/trihedronShader.vert");
+  myTrihedronShaderProgram->addShaderFromSourceFile (QOpenGLShader::Fragment, ":/Shaders/trihedronShader.frag");
   myTrihedronShaderProgram->link();
 }
 

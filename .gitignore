@@ -4,6 +4,8 @@
 *.dylib
 *.so
 
+WinBuild/*
+
 #cmake
 /cmbuild/
 /build/

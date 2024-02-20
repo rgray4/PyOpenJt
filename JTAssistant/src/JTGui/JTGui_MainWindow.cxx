@@ -560,11 +560,11 @@ static QMessageBox::StandardButton showExitPromptDialog (JTGui_MainWindow* aPare
 //=======================================================================
 void JTGui_MainWindow::closeWindow()
 {
-  if (showExitPromptDialog (this) == QMessageBox::Yes)
-  {
+  //if (showExitPromptDialog (this) == QMessageBox::Yes)
+  //{
     saveSettings();
     qApp->exit();
-  }
+  //}
 }
 
 //=======================================================================
@@ -573,15 +573,15 @@ void JTGui_MainWindow::closeWindow()
 //=======================================================================
 void JTGui_MainWindow::closeEvent (QCloseEvent *theEvent)
 {
-  if (showExitPromptDialog (this) == QMessageBox::Yes)
-  {
+  //if (showExitPromptDialog (this) == QMessageBox::Yes)
+  //{
     saveSettings();
     QMainWindow::closeEvent (theEvent);
-  }
-  else
-  {
-    theEvent->ignore();
-  }
+  //}
+  //else
+  //{
+  //  theEvent->ignore();
+  //}
 }
 
 //=======================================================================

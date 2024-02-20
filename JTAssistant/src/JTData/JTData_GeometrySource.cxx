@@ -150,7 +150,7 @@ Standard_Boolean JTData_GeometrySource::Init (const QString& theFileName)
   }
 
 #ifdef _WIN32
-  ifstream aFile (theFileName.toStdWString().c_str(), ios::binary | ios::in);
+  std::ifstream aFile (theFileName.toStdWString().c_str(), std::ios::binary | std::ios::in);
 #else
   ifstream aFile (theFileName.toUtf8().data(), ios::binary | ios::in);
 #endif
