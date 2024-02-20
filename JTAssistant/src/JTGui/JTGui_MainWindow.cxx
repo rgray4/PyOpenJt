@@ -546,13 +546,13 @@ void JTGui_MainWindow::selectNode (JTData_Node* theNode)
 // function : showExitPromptDialog
 // purpose  :
 //=======================================================================
-static QMessageBox::StandardButton showExitPromptDialog (JTGui_MainWindow* aParent)
-{
-  return QMessageBox::question (aParent,
-                                "JTAssistant",
-                                "Do you really want to quit?",
-                                QMessageBox::Yes | QMessageBox::No);
-}
+//static QMessageBox::StandardButton showExitPromptDialog (JTGui_MainWindow* aParent)
+//{
+//  return QMessageBox::question (aParent,
+//                                "JTAssistant",
+//                                "Do you really want to quit?",
+//                                QMessageBox::Yes | QMessageBox::No);
+//}
 
 //=======================================================================
 // function : closeWindow

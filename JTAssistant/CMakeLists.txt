@@ -20,19 +20,6 @@ find_package(ZLIB 					REQUIRED)
 find_package(OpenGL 				REQUIRED)
 
 
-mark_as_advanced(CLEAR ZLIB_LIBRARY)
-
-if(WIN32)
-  if(ZLIB_FOUND)
-    get_filename_component(ZLIB_LIBRARY_DIR "${ZLIB_LIBRARY}" PATH)
-    get_filename_component(ZLIB_LIBRARY_NAME "${ZLIB_LIBRARY}" NAME_WE)
-    get_filename_component(ZLIB_ROOT_DIR "${ZLIB_LIBRARY_DIR}" PATH)
-    find_program(ZLIB_DLL ${ZLIB_LIBRARY_NAME}.dll NAMES zlib1.dll PATHS "${ZLIB_ROOT_DIR}" "${ZLIB_ROOT_DIR}/bin" NO_DEFAULT_PATH)
-  endif(ZLIB_FOUND)
-endif(WIN32)
-
-set (OPENGL_LIBRARIES ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
-
 get_target_property (TKJT_INCLUDE_DIRS TKJT INTERFACE_INCLUDE_DIRECTORIES)
 
 # =============================================================================
@@ -45,10 +32,6 @@ include_directories (
   ${CMAKE_CURRENT_SOURCE_DIR}/src/JTData
   ${CMAKE_CURRENT_SOURCE_DIR}/src/JTGui
   ${CMAKE_CURRENT_SOURCE_DIR}/src/JTVis
-  ${OCE_INCLUDE_DIRS}
-  ${ZLIB_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIR}
-  ${TKJT_INCLUDE_DIRS}
 )
 
 file (GLOB_RECURSE ProjectSources src/*.cxx)
@@ -104,11 +87,12 @@ target_link_libraries(JTAssistant PRIVATE OpenGL::GL)
 target_link_libraries (JTAssistant PRIVATE TKJT)
 target_link_libraries (JTAssistant PRIVATE Qt5::Widgets)
 
-
-
-#if (WIN32)
-#  if (MSVC)
-#    set_target_properties (JTAssistant PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-#  endif (MSVC)
-#endif (WIN32)
+set_target_properties(JTAssistant PROPERTIES RUNTIME_OUTPUT_DIRECTORY         ${CMAKE_BINARY_DIR})
+set_target_properties(JTAssistant PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/Release)
+set_target_properties(JTAssistant PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/RelWithDebInfo)
+set_target_properties(JTAssistant PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG   ${CMAKE_BINARY_DIR}/Debug)
+set_target_properties(JTAssistant PROPERTIES LIBRARY_OUTPUT_DIRECTORY         ${CMAKE_BINARY_DIR}/lib)
+set_target_properties(JTAssistant PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/Release/lib)
+set_target_properties(JTAssistant PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/RelWithDebInfo/lib)
+set_target_properties(JTAssistant PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG   ${CMAKE_BINARY_DIR}/Debug/lib)
 

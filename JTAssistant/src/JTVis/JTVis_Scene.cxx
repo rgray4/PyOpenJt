@@ -684,17 +684,17 @@ void JTVis_Scene::PerformSelection (int theNodeId, bool isMultipleSelection)
           break;
         }
 
-        JTData_Node* aNode = aStack.pop();
+        JTData_Node* aPartNode = aStack.pop();
 
-        if (typeid (*aNode) == typeid (JTData_MeshNode))
+        if (typeid (*aPartNode) == typeid (JTData_MeshNode))
         {
-          JTData_MeshNode* aMesh = static_cast<JTData_MeshNode*> (aNode);
+          JTData_MeshNode* aMesh = static_cast<JTData_MeshNode*> (aPartNode);
 
           aCollectedNodes.push_back (myMeshToPartMap[aMesh].data());
         }
         else
         {
-          JTData_GroupNode* aGroup = static_cast<JTData_GroupNode*> (aNode);
+          JTData_GroupNode* aGroup = static_cast<JTData_GroupNode*> (aPartNode);
 
           for (size_t anIdx = 0; anIdx < aGroup->Children.size(); ++anIdx)
           {
