@@ -30,7 +30,7 @@
 
 class JtNode_Partition;
 
-DEFINE_STANDARD_HANDLE(JtData_Model, MMgt_TShared)
+DEFINE_STANDARD_HANDLE(JtData_Model, Standard_Transient)
 
 //! Model class dealing with Jt file and providing base services
 //! on file open, read header, fetching Jt segments.

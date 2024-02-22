@@ -24,5 +24,7 @@ include (DefineCxxFlags)
 
 
 add_subdirectory (TKJT)
+add_subdirectory (ToolsLib)
+add_subdirectory (JtTools)
 add_subdirectory (JTAssistant)
 

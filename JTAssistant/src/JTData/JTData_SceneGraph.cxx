@@ -32,6 +32,8 @@
 
 #include "JTData_SceneGraph.hxx"
 
+//#include <JtData2Model.h>
+
 #include <limits>
 #include <cmath>
 
@@ -378,6 +380,7 @@ Standard_Boolean JTData_SceneGraph::Init (const Handle(JtData_Model)& theModel, 
 
   if (!aNode.IsNull())
   {
+    
     myRoot = PushNode (aNode, QFileInfo (theFileName).path());
   }
 

@@ -35,6 +35,8 @@ call %VCPKG_DIR%vcpkg.exe install ^
    eigen3:x64-windows^
    opencascade:x64-windows ^
    tbb:x64-windows ^
+   cli11:x64-windows ^
+   tinygltf:x64-windows ^
    zlib:x64-windows 
    
 

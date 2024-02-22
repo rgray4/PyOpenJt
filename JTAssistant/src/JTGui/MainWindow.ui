@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1108</width>
-    <height>751</height>
+    <width>2166</width>
+    <height>1253</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>JTAssistant</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../JTViewer.qrc">
+   <iconset>
     <normaloff>:/desktop/res/icons/desktop/icon.png</normaloff>:/desktop/res/icons/desktop/icon.png</iconset>
   </property>
   <widget class="QWidget" name="myCentralWidget">
@@ -74,7 +74,7 @@
         <enum>QTabWidget::Rounded</enum>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <property name="elideMode">
         <enum>Qt::ElideNone</enum>
@@ -98,41 +98,32 @@
         <attribute name="title">
          <string>Model Browser</string>
         </attribute>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
+        <layout class="QVBoxLayout" name="verticalLayout_8">
          <item>
-          <widget class="JTGui_TreeWidget" name="myTreeWidget">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+          <widget class="QSplitter" name="splitter">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
            </property>
-           <property name="rootIsDecorated">
-            <bool>true</bool>
-           </property>
-           <property name="headerHidden">
-            <bool>true</bool>
-           </property>
-           <attribute name="headerVisible">
-            <bool>false</bool>
-           </attribute>
-           <column>
-            <property name="text">
-             <string notr="true">1</string>
+           <widget class="JTGui_TreeWidget" name="myTreeWidget">
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
             </property>
-           </column>
+            <property name="rootIsDecorated">
+             <bool>true</bool>
+            </property>
+            <property name="headerHidden">
+             <bool>true</bool>
+            </property>
+            <attribute name="headerVisible">
+             <bool>false</bool>
+            </attribute>
+            <column>
+             <property name="text">
+              <string notr="true">1</string>
+             </property>
+            </column>
+           </widget>
+           <widget class="QTreeView" name="treeView_Properties"/>
           </widget>
          </item>
         </layout>
@@ -164,8 +155,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>227</width>
-              <height>683</height>
+              <width>240</width>
+              <height>1114</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -937,8 +928,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1108</width>
-     <height>21</height>
+     <width>2166</width>
+     <height>26</height>
     </rect>
    </property>
    <property name="contextMenuPolicy">
@@ -1062,7 +1053,7 @@
   </widget>
   <action name="actionOpen">
    <property name="icon">
-    <iconset resource="../../JTViewer.qrc">
+    <iconset>
      <normaloff>:/desktop/res/icons/desktop/folder_b.png</normaloff>:/desktop/res/icons/desktop/folder_b.png</iconset>
    </property>
    <property name="text">
@@ -1079,7 +1070,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../JTViewer.qrc">
+    <iconset>
      <normaloff>:/desktop/res/icons/desktop/Fitall.png</normaloff>:/desktop/res/icons/desktop/Fitall.png</iconset>
    </property>
    <property name="text">
@@ -1097,7 +1088,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../JTViewer.qrc">
+    <iconset>
      <normaloff>:/desktop/res/icons/desktop/Zoom.png</normaloff>:/desktop/res/icons/desktop/Zoom.png</iconset>
    </property>
    <property name="text">
@@ -1120,7 +1111,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../JTViewer.qrc">
+    <iconset>
      <normaloff>:/desktop/res/icons/desktop/Move.png</normaloff>:/desktop/res/icons/desktop/Move.png</iconset>
    </property>
    <property name="text">
@@ -1135,7 +1126,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../JTViewer.qrc">
+    <iconset>
      <normaloff>:/desktop/res/icons/desktop/Rotate.png</normaloff>:/desktop/res/icons/desktop/Rotate.png</iconset>
    </property>
    <property name="text">
@@ -1147,7 +1138,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../JTViewer.qrc">
+    <iconset>
      <normaloff>:/desktop/res/icons/desktop/top36t.png</normaloff>:/desktop/res/icons/desktop/top36t.png</iconset>
    </property>
    <property name="text">
@@ -1162,7 +1153,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../JTViewer.qrc">
+    <iconset>
      <normaloff>:/desktop/res/icons/desktop/bottom36t.png</normaloff>:/desktop/res/icons/desktop/bottom36t.png</iconset>
    </property>
    <property name="text">
@@ -1177,7 +1168,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../JTViewer.qrc">
+    <iconset>
      <normaloff>:/desktop/res/icons/desktop/left36t.png</normaloff>:/desktop/res/icons/desktop/left36t.png</iconset>
    </property>
    <property name="text">
@@ -1192,7 +1183,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../JTViewer.qrc">
+    <iconset>
      <normaloff>:/desktop/res/icons/desktop/Iso.png</normaloff>:/desktop/res/icons/desktop/Iso.png</iconset>
    </property>
    <property name="text">
@@ -1270,7 +1261,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../JTViewer.qrc">
+    <iconset>
      <normaloff>:/desktop/res/icons/desktop/right36t.png</normaloff>:/desktop/res/icons/desktop/right36t.png</iconset>
    </property>
    <property name="text">
@@ -1285,7 +1276,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../JTViewer.qrc">
+    <iconset>
      <normaloff>:/desktop/res/icons/desktop/front36t.png</normaloff>:/desktop/res/icons/desktop/front36t.png</iconset>
    </property>
    <property name="text">
@@ -1300,7 +1291,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../JTViewer.qrc">
+    <iconset>
      <normaloff>:/desktop/res/icons/desktop/back36t.png</normaloff>:/desktop/res/icons/desktop/back36t.png</iconset>
    </property>
    <property name="text">
@@ -1315,7 +1306,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../JTViewer.qrc">
+    <iconset>
      <normaloff>:/desktop/res/icons/desktop/Axes.png</normaloff>:/desktop/res/icons/desktop/Axes.png</iconset>
    </property>
    <property name="text">
@@ -1330,7 +1321,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../JTViewer.qrc">
+    <iconset>
      <normaloff>:/desktop/res/icons/desktop/hline.png</normaloff>:/desktop/res/icons/desktop/hline.png</iconset>
    </property>
    <property name="text">
@@ -1341,13 +1332,12 @@
    </property>
   </action>
   <action name="actionScreenshot">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/desktop/res/icons/desktop/screenshot.png</normaloff>:/desktop/res/icons/desktop/screenshot.png</iconset>
+   </property>
    <property name="text">
     <string>Screenshot</string>
-   </property>
-   <property name="icon">
-      <iconset resource="../../JTViewer.qrc">
-        <normaloff>:/desktop/res/icons/desktop/screenshot.png</normaloff>:/desktop/res/icons/desktop/screenshot.png
-      </iconset>
    </property>
   </action>
   <action name="actionShowToolbar">

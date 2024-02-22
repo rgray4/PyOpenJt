@@ -13,14 +13,15 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 # Find the QtWidgets library
-find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
-find_package(OpenCASCADE 	CONFIG 	REQUIRED)
-find_package(TBB 			CONFIG 	REQUIRED)
-find_package(ZLIB 					REQUIRED)
-find_package(OpenGL 				REQUIRED)
+find_package(Qt5			COMPONENTS Core Widgets REQUIRED)
+find_package(OpenCASCADE 	CONFIG 					REQUIRED)
+find_package(TBB 			CONFIG 					REQUIRED)
+find_package(ZLIB 									REQUIRED)
+find_package(OpenGL 								REQUIRED)
 
 
 get_target_property (TKJT_INCLUDE_DIRS TKJT INTERFACE_INCLUDE_DIRECTORIES)
+get_target_property (ToolsLib_INCLUDE_DIRS ToolsLib INTERFACE_INCLUDE_DIRECTORIES)
 
 # =============================================================================
 # Define production steps
@@ -74,6 +75,8 @@ source_group ("Resources" FILES
 add_executable (JTAssistant WIN32 ${ProjectSources} ${ProjectHeaders} ${ProjectUI} ${ProjectQRC} ${EXE_ICON})
 
 add_dependencies (JTAssistant TKJT)
+add_dependencies (JTAssistant ToolsLib)
+
 target_include_directories (JTAssistant PUBLIC ${OpenCASCADE_INCLUDE_DIR} )
 
 target_link_libraries(JTAssistant PRIVATE TKernel TKMath TKXSBase)
@@ -85,6 +88,7 @@ target_link_libraries(JTAssistant PRIVATE OpenGL::GL)
 
 
 target_link_libraries (JTAssistant PRIVATE TKJT)
+target_link_libraries (JTAssistant PRIVATE ToolsLib)
 target_link_libraries (JTAssistant PRIVATE Qt5::Widgets)
 
 set_target_properties(JTAssistant PROPERTIES RUNTIME_OUTPUT_DIRECTORY         ${CMAKE_BINARY_DIR})
