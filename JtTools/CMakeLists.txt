@@ -8,6 +8,7 @@
 
 find_package(OpenCASCADE 	CONFIG 	REQUIRED)
 find_package(CLI11			CONFIG	REQUIRED)
+find_package(Eigen3 				REQUIRED)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -53,6 +54,7 @@ target_link_libraries (JtDump PRIVATE
 								ToolsLib 
 								CLI11::CLI11
 								TKernel TKMath TKXSBase
+								Eigen3::Eigen
 						)
 target_include_directories (JtDump PUBLIC ${OpenCASCADE_INCLUDE_DIR} )
 

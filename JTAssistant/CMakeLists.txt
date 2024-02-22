@@ -18,6 +18,7 @@ find_package(OpenCASCADE 	CONFIG 					REQUIRED)
 find_package(TBB 			CONFIG 					REQUIRED)
 find_package(ZLIB 									REQUIRED)
 find_package(OpenGL 								REQUIRED)
+find_package(Eigen3 								REQUIRED)
 
 
 get_target_property (TKJT_INCLUDE_DIRS TKJT INTERFACE_INCLUDE_DIRECTORIES)

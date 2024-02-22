@@ -9,14 +9,28 @@
 #include <CLI/CLI.hpp>
 
 #include <JtData_Model.hxx>
-#include <JtNode_Partition.hxx>
 #include <JtNode_Base.hxx>
+#include <JtNode_Partition.hxx>
+#include <JtNode_Part.hxx>
+#include <JtNode_RangeLOD.hxx>
+#include <JtNode_LOD.hxx>
+#include <JtNode_Instance.hxx>
+#include <JtNode_Shape_Vertex.hxx>
+#include <JtNode_Shape_TriStripSet.hxx>
+#include <JtAttribute_Material.hxx>
+#include <JtNode_Shape_TriStripSet.hxx>
+#include <JtAttribute_GeometricTransform.hxx>
 
 #include <iostream>
 #include <iomanip>
 
+//#include <Matrix.h>
+
 using namespace std;
 
+
+void HandleAllChildren(const Handle(JtNode_Group)& theGroupRecord, const std::string& thePrefix);
+void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::string& thePrefix);
 
 int main(int argc, char* argv[])
 {
@@ -40,36 +54,261 @@ int main(int argc, char* argv[])
 	for (const auto& aarg : files) {
 		cout << aarg << " ";
 
-		//ifstream aFile(aarg, std::ios::binary | std::ios::in);
-
-#ifdef _WIN32
 		TCollection_ExtendedString aFileName(aarg.c_str(), Standard_True);
-#else
-		TCollection_ExtendedString aFileName(theFileName.toUtf8().data());
-#endif
 
-		Handle(JtData_Model) aModel = new JtData_Model(aFileName);
 
-		if (aModel.IsNull())
+		Handle(JtData_Model) rootModel =   new JtData_Model(aFileName);
+
+		if (rootModel.IsNull())
 			return 2;
 
-		Handle(JtNode_Partition) PartitionNode = aModel->Init();
+		Handle(JtNode_Partition) PartitionNode = rootModel->Init();
 
-		if(!PartitionNode->Load())
-			return 3;
 
-		auto childrean = PartitionNode->Children();
-		for (Standard_Integer aChildIdx = 0; aChildIdx < childrean.Count(); ++aChildIdx)
-		{
-			Handle(JtNode_Base) aChildRecord = Handle(JtNode_Base)::DownCast(childrean[aChildIdx]);
+        RecurseDownTheTree(PartitionNode, aarg);
 
-			if (aChildRecord.IsNull())
-			{
-				continue;
-			}
-
-		}
+		
 	}
 
 	return 0;
+}
+
+
+static Handle(Standard_Type) TypeOf_JtNode_Partition				= STANDARD_TYPE(JtNode_Partition);
+static Handle(Standard_Type) TypeOf_JtNode_Part						= STANDARD_TYPE(JtNode_Part);
+static Handle(Standard_Type) TypeOf_JtNode_RangeLOD					= STANDARD_TYPE(JtNode_RangeLOD);
+static Handle(Standard_Type) TypeOf_JtNode_LOD						= STANDARD_TYPE(JtNode_LOD);
+static Handle(Standard_Type) TypeOf_JtNode_Group					= STANDARD_TYPE(JtNode_Group);
+static Handle(Standard_Type) TypeOf_JtNode_Instance					= STANDARD_TYPE(JtNode_Instance);
+static Handle(Standard_Type) TypeOf_JtNode_Shape_Vertex				= STANDARD_TYPE(JtNode_Shape_Vertex);
+static Handle(Standard_Type) TypeOf_JtNode_Shape_TriStripSet		= STANDARD_TYPE(JtNode_Shape_TriStripSet);
+static Handle(Standard_Type) TypeOf_JtAttribute_Material			= STANDARD_TYPE(JtAttribute_Material);
+static Handle(Standard_Type) TypeOf_JtAttribute_GeometricTransform	= STANDARD_TYPE(JtAttribute_GeometricTransform);
+
+
+void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::string& thePrefix)
+{
+    // Handle all different types of LSG Nodes
+    if (theNodeRecord->IsKind(TypeOf_JtNode_Partition))
+    {
+        Handle(JtNode_Partition) aPartitionRecord = Handle(JtNode_Partition)::DownCast(theNodeRecord);
+
+        aPartitionRecord->FileName();
+
+        cout << "TypeOf_JtNode_Partition \n";
+
+        HandleAllChildren( aPartitionRecord, thePrefix);
+    }
+    else if (theNodeRecord->IsKind(TypeOf_JtNode_Part))
+    {
+        HandleAllChildren( Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
+    }
+    else if (theNodeRecord->IsKind(TypeOf_JtNode_RangeLOD))
+    {
+        Handle(JtNode_RangeLOD) aRangeLODRecord =
+            Handle(JtNode_RangeLOD)::DownCast(theNodeRecord);
+
+        cout << "TypeOf_JtNode_RangeLOD \n";
+
+        HandleAllChildren(aRangeLODRecord, thePrefix);
+
+        /*
+        Eigen::Vector4f(
+            static_cast<Standard_ShortReal> (aRangeLODRecord->Center().X),
+            static_cast<Standard_ShortReal> (aRangeLODRecord->Center().Y),
+            static_cast<Standard_ShortReal> (aRangeLODRecord->Center().Z),
+            1.0);
+
+        if (!aRangeLODRecord->RangeLimits().IsEmpty())
+        {
+            for (Standard_Integer anIdx = 1; anIdx <= aRangeLODRecord->RangeLimits().Count(); ++anIdx)
+            {
+                aRangeLOD->Ranges().push_back(aRangeLODRecord->RangeLimits()[anIdx]);
+            }
+        }
+        else
+        {
+            aRangeLOD->Ranges().push_back(std::numeric_limits<Standard_ShortReal>::max());
+
+            for (Standard_Integer anIdx = 1; anIdx < (Standard_Integer)aRangeLODRecord->Children().Count(); ++anIdx)
+            {
+                aRangeLOD->Ranges().push_back(0.0);
+            }
+        }
+
+        */
+    }
+    else if (theNodeRecord->IsKind(TypeOf_JtNode_LOD))
+    {
+        cout << "TypeOf_JtNode_LOD \n";
+        HandleAllChildren(Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
+    }
+    else if (theNodeRecord->IsKind(TypeOf_JtNode_Group))
+    {
+        cout << "TypeOf_JtNode_Group \n";
+        HandleAllChildren( Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
+    }
+    else if (theNodeRecord->IsKind(TypeOf_JtNode_Instance))
+    {
+        Handle(JtNode_Instance) anInstance = Handle(JtNode_Instance)::DownCast(theNodeRecord);
+
+        // Note: To support JT Viewer operations (such as object hiding) it is convenient
+        // to eliminate instance nodes from the scene graph. In result, using of sub-tree
+        // references becomes impossible. But the actual geometric data is not duplicated
+        // by decomposing the node on the description part and data source part.
+
+        Handle(JtNode_Base) aNode = Handle(JtNode_Base)::DownCast(anInstance->Object());
+
+        cout << "TypeOf_JtNode_Instance \n";
+
+       /* Q_ASSERT_X(!aNode.IsNull(),
+            "PushNode", "Error! Invalid object in LSG segment");
+
+        aResult = PushNode(aNode, thePrefix);*/
+    }
+    else if (theNodeRecord->IsKind(TypeOf_JtNode_Shape_Vertex))
+    {
+        Handle(JtNode_Shape_Vertex) aShapeRecord = Handle(JtNode_Shape_Vertex)::DownCast(theNodeRecord);
+
+        if (aShapeRecord->IsKind(TypeOf_JtNode_Shape_TriStripSet))
+        {
+            Handle(JtNode_Shape_TriStripSet) aMeshRecord = Handle(JtNode_Shape_TriStripSet)::DownCast(aShapeRecord);
+
+            cout << "TypeOf_JtNode_Shape_Vertex->JtNode_Shape_TriStripSet \n";
+            /*
+            JTCommon_AABB aBox(
+                Eigen::Vector4f(aMeshRecord->Bounds().MinCorner.X,
+                    aMeshRecord->Bounds().MinCorner.Y,
+                    aMeshRecord->Bounds().MinCorner.Z,
+                    1.f),
+                Eigen::Vector4f(aMeshRecord->Bounds().MaxCorner.X,
+                    aMeshRecord->Bounds().MaxCorner.Y,
+                    aMeshRecord->Bounds().MaxCorner.Z,
+                    1.f));
+
+            if (!mySources.Contains(aMeshRecord))
+            {
+                JTData_MeshNodeSourcePtr aMeshSource(
+                    new JTData_MeshNodeSource(myLoadingQueue, aMeshRecord));
+
+                // Add to new mesh source to the map (can be reused)
+                mySources.Add(aMeshRecord, aMeshSource);
+            }
+            */
+         
+        }else
+            cout << "TypeOf_JtNode_Shape_Vertex->Unknown \n";
+    }
+
+
+    // Extract attributes
+
+    if (theNodeRecord->Attributes().IsEmpty())
+        return ;
+
+    for (Standard_Integer anIdx = 0; anIdx < (Standard_Integer)theNodeRecord->Attributes().Count(); ++anIdx)
+    {
+        const Handle(JtData_Object)& anObject = theNodeRecord->Attributes()[anIdx];
+
+        if (anObject.IsNull())
+            continue;
+
+        Handle(JtAttribute_Base) anAttrib = Handle(JtAttribute_Base)::DownCast(anObject);
+
+        if(anAttrib.IsNull())
+            cerr << "Error! Invalid node attribute\n";
+
+        if (anAttrib->IsKind(TypeOf_JtAttribute_GeometricTransform))
+        {
+            Handle(JtAttribute_GeometricTransform) aTransform =
+                Handle(JtAttribute_GeometricTransform)::DownCast(anAttrib);
+            cout << "   TypeOf_JtAttribute_GeometricTransform \n";
+            /*
+            Eigen::Matrix4f aMatrix;
+
+            for (Standard_Integer aX = 0; aX < 4; ++aX)
+            {
+                for (Standard_Integer aY = 0; aY < 4; ++aY)
+                {
+                    aMatrix(aX, aY) = static_cast<Standard_ShortReal> (aTransform->GetTrsf()[aY * 4 + aX]);
+                }
+            }
+
+            if (aMatrix(3, 3) == 0.f)
+            {
+                aMatrix(3, 3) = 1.f; // fix problem with homogeneous coordinates
+            }
+
+            aResult->Attributes.push_back(JTData_TransformAttributePtr(new JTData_TransformAttribute(aMatrix)));
+            */
+        }
+        else if (anAttrib->IsKind(TypeOf_JtAttribute_Material))
+        {
+            Handle(JtAttribute_Material) aMaterial =
+                Handle(JtAttribute_Material)::DownCast(anAttrib);
+            cout << "   TypeOf_JtAttribute_Material \n";
+            /*
+            Eigen::Vector4f aAmbientColor(
+                static_cast<Standard_ShortReal> (aMaterial->AmbientColor()[0]),
+                static_cast<Standard_ShortReal> (aMaterial->AmbientColor()[1]),
+                static_cast<Standard_ShortReal> (aMaterial->AmbientColor()[2]),
+                static_cast<Standard_ShortReal> (aMaterial->AmbientColor()[3]));
+
+            Eigen::Vector4f aDiffuseColor(
+                static_cast<Standard_ShortReal> (aMaterial->DiffuseColor()[0]),
+                static_cast<Standard_ShortReal> (aMaterial->DiffuseColor()[1]),
+                static_cast<Standard_ShortReal> (aMaterial->DiffuseColor()[2]),
+                static_cast<Standard_ShortReal> (aMaterial->DiffuseColor()[3]));
+
+            Eigen::Vector4f aSpecularColor(
+                static_cast<Standard_ShortReal> (aMaterial->SpecularColor()[0]),
+                static_cast<Standard_ShortReal> (aMaterial->SpecularColor()[1]),
+                static_cast<Standard_ShortReal> (aMaterial->SpecularColor()[2]),
+                static_cast<Standard_ShortReal> (aMaterial->SpecularColor()[3]));
+
+            Eigen::Vector4f aEmissionColor(
+                static_cast<Standard_ShortReal> (aMaterial->EmissionColor()[0]),
+                static_cast<Standard_ShortReal> (aMaterial->EmissionColor()[1]),
+                static_cast<Standard_ShortReal> (aMaterial->EmissionColor()[2]),
+                static_cast<Standard_ShortReal> (aMaterial->EmissionColor()[3]));
+
+            Standard_ShortReal aShininess =
+                static_cast<Standard_ShortReal> (aMaterial->Shininess());
+
+            JTData_MaterialAttributePtr aMaterialAttrib(new JTData_MaterialAttribute(
+                aAmbientColor, aDiffuseColor, aSpecularColor, aEmissionColor, aShininess));
+
+            aResult->Attributes.push_back(aMaterialAttrib);
+            */
+        }
+    }
+
+}
+
+void HandleAllChildren(const Handle(JtNode_Group)& theGroupRecord, const std::string& thePrefix)
+{
+    if (theGroupRecord->Children().IsEmpty())
+        return;
+
+    for (Standard_Integer aChildIdx = 0; aChildIdx < (Standard_Integer)theGroupRecord->Children().Count(); ++aChildIdx)
+    {
+        Handle(JtNode_Base) aChildRecord = Handle(JtNode_Base)::DownCast(theGroupRecord->Children()[aChildIdx]);
+
+        if (aChildRecord.IsNull())
+        {
+            continue;
+        }
+
+        RecurseDownTheTree(aChildRecord, thePrefix);
+
+        //JTData_NodePtr aChildNode = PushNode(aChildRecord, thePrefix);
+
+        //Q_ASSERT_X(!aChildNode.isNull(),
+        //    "PushNode", "Error! Failed to extract node from LSG segment");
+
+       //if (!aChildNode.isNull())
+        //{       
+        //  theGroupNode->Children.push_back(aChildNode);
+        //}
+    }
 }
