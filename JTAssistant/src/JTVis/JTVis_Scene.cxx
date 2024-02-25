@@ -788,6 +788,7 @@ void JTVis_Scene::ResetFbos()
 {
   {
     delete mySelectionFbo;
+      
     QOpenGLFramebufferObjectFormat anFboFormat;
 #ifndef QT_OPENGL_ES_2
     anFboFormat.setInternalTextureFormat (GL_R32F);

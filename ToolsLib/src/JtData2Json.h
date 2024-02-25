@@ -11,6 +11,20 @@
 
 #include <ostream>
 
+std::ostream& operator<<(std::ostream& os, const TCollection_ExtendedString& extstr);
+
+struct indentOp {
+	indentOp(int level) : level(level) {}
+private:
+	friend std::ostream& operator<<(std::ostream& stream, const indentOp& val);
+	int level;
+};
+
+inline std::ostream& operator<<(std::ostream& stream, const indentOp& val) {
+	for (int i = 0; i < val.level; i++)
+		stream << '\t';
+	return stream;
+}
 
 
-int writeModel(Handle(JtData_Model) model, std::ostream& out, int config = 0);
+int writeModel(Handle(JtData_Model) model, std::ostream& out, int indent = 0, int config = 0);

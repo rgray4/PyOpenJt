@@ -17,17 +17,25 @@
 #include <JtNode_Instance.hxx>
 #include <JtNode_Shape_Vertex.hxx>
 #include <JtNode_Shape_TriStripSet.hxx>
+#include <JtNode_MetaData.hxx>
+#include <JtNode_Shape_Base.hxx>
+#include <JtProperty_LateLoaded.hxx>
 #include <JtAttribute_Material.hxx>
 #include <JtNode_Shape_TriStripSet.hxx>
 #include <JtAttribute_GeometricTransform.hxx>
 
+#include <JtData2Json.h>
+
 #include <iostream>
 #include <iomanip>
+#include <assert.h>
 
 //#include <Matrix.h>
 
 using namespace std;
 
+std::ostream &outStream = std::cout;
+int indention = 0;
 
 void HandleAllChildren(const Handle(JtNode_Group)& theGroupRecord, const std::string& thePrefix);
 void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::string& thePrefix);
@@ -50,14 +58,25 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+    if (files.size() > 1) {
+        outStream << '[' << endl;
+        indention++;
+    }
+
+
 	// go through Jt files
 	for (const auto& aarg : files) {
-		cout << aarg << " ";
+
+        outStream << '{' << endl;
+        indention++;
+
 
 		TCollection_ExtendedString aFileName(aarg.c_str(), Standard_True);
 
 
 		Handle(JtData_Model) rootModel =   new JtData_Model(aFileName);
+
+        writeModel(rootModel, outStream, indention);
 
 		if (rootModel.IsNull())
 			return 2;
@@ -67,8 +86,18 @@ int main(int argc, char* argv[])
 
         RecurseDownTheTree(PartitionNode, aarg);
 
+
+        outStream << '}' << endl;
+        indention--;
 		
 	}
+
+    if (files.size() > 1) {
+        outStream << ']' << endl;
+        indention--;
+    }
+
+    assert(indention == 0);
 
 	return 0;
 }
@@ -81,13 +110,15 @@ static Handle(Standard_Type) TypeOf_JtNode_LOD						= STANDARD_TYPE(JtNode_LOD);
 static Handle(Standard_Type) TypeOf_JtNode_Group					= STANDARD_TYPE(JtNode_Group);
 static Handle(Standard_Type) TypeOf_JtNode_Instance					= STANDARD_TYPE(JtNode_Instance);
 static Handle(Standard_Type) TypeOf_JtNode_Shape_Vertex				= STANDARD_TYPE(JtNode_Shape_Vertex);
-static Handle(Standard_Type) TypeOf_JtNode_Shape_TriStripSet		= STANDARD_TYPE(JtNode_Shape_TriStripSet);
+static Handle(Standard_Type) TypeOf_JtNode_MetaData                 = STANDARD_TYPE(JtNode_MetaData);
+static Handle(Standard_Type) TypeOf_JtNode_Shape_TriStripSet        = STANDARD_TYPE(JtNode_Shape_TriStripSet);
 static Handle(Standard_Type) TypeOf_JtAttribute_Material			= STANDARD_TYPE(JtAttribute_Material);
 static Handle(Standard_Type) TypeOf_JtAttribute_GeometricTransform	= STANDARD_TYPE(JtAttribute_GeometricTransform);
 
 
 void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::string& thePrefix)
 {
+
     // Handle all different types of LSG Nodes
     if (theNodeRecord->IsKind(TypeOf_JtNode_Partition))
     {
@@ -95,20 +126,28 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
 
         aPartitionRecord->FileName();
 
-        cout << "TypeOf_JtNode_Partition \n";
+        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "JtNode_Partition \n";
 
         HandleAllChildren( aPartitionRecord, thePrefix);
     }
     else if (theNodeRecord->IsKind(TypeOf_JtNode_Part))
     {
-        HandleAllChildren( Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
+
+
+        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "JtNode_Part \n";
+        HandleAllChildren(Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
     }
+    //else if (theNodeRecord->IsKind(TypeOf_JtNode_MetaData))
+    //{
+    //    cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "TypeOf_JtNode_MetaData \n";
+    //    //HandleAllChildren(Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
+    //}
     else if (theNodeRecord->IsKind(TypeOf_JtNode_RangeLOD))
     {
         Handle(JtNode_RangeLOD) aRangeLODRecord =
             Handle(JtNode_RangeLOD)::DownCast(theNodeRecord);
 
-        cout << "TypeOf_JtNode_RangeLOD \n";
+        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "JtNode_RangeLOD \n";
 
         HandleAllChildren(aRangeLODRecord, thePrefix);
 
@@ -140,12 +179,12 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
     }
     else if (theNodeRecord->IsKind(TypeOf_JtNode_LOD))
     {
-        cout << "TypeOf_JtNode_LOD \n";
+        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "JtNode_LOD \n";
         HandleAllChildren(Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
     }
     else if (theNodeRecord->IsKind(TypeOf_JtNode_Group))
     {
-        cout << "TypeOf_JtNode_Group \n";
+        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "JtNode_Group \n";
         HandleAllChildren( Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
     }
     else if (theNodeRecord->IsKind(TypeOf_JtNode_Instance))
@@ -159,12 +198,12 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
 
         Handle(JtNode_Base) aNode = Handle(JtNode_Base)::DownCast(anInstance->Object());
 
-        cout << "TypeOf_JtNode_Instance \n";
+        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "JtNode_Instance \n";
 
-       /* Q_ASSERT_X(!aNode.IsNull(),
-            "PushNode", "Error! Invalid object in LSG segment");
+        indention++;
+        RecurseDownTheTree(aNode, thePrefix);
+        indention--;
 
-        aResult = PushNode(aNode, thePrefix);*/
     }
     else if (theNodeRecord->IsKind(TypeOf_JtNode_Shape_Vertex))
     {
@@ -174,7 +213,12 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
         {
             Handle(JtNode_Shape_TriStripSet) aMeshRecord = Handle(JtNode_Shape_TriStripSet)::DownCast(aShapeRecord);
 
-            cout << "TypeOf_JtNode_Shape_Vertex->JtNode_Shape_TriStripSet \n";
+            aMeshRecord->Bounds();
+            const JtData_Object::VectorOfLateLoads& aLateLoaded = aMeshRecord->LateLoads();
+
+            cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "TypeOf_JtNode_Shape_Vertex->JtNode_Shape_TriStripSet LateLoad: " << aLateLoaded.Count() << "\n";
+
+
             /*
             JTCommon_AABB aBox(
                 Eigen::Vector4f(aMeshRecord->Bounds().MinCorner.X,
@@ -197,7 +241,11 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
             */
          
         }else
-            cout << "TypeOf_JtNode_Shape_Vertex->Unknown \n";
+            cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "TypeOf_JtNode_Shape_Vertex->Unknown \n";
+    }
+    else
+    {
+        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "Unknown node type \n";
     }
 
 
@@ -218,69 +266,40 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
         if(anAttrib.IsNull())
             cerr << "Error! Invalid node attribute\n";
 
+        indention++;
+
         if (anAttrib->IsKind(TypeOf_JtAttribute_GeometricTransform))
         {
             Handle(JtAttribute_GeometricTransform) aTransform =
                 Handle(JtAttribute_GeometricTransform)::DownCast(anAttrib);
-            cout << "   TypeOf_JtAttribute_GeometricTransform \n";
-            /*
-            Eigen::Matrix4f aMatrix;
+            cout << indentOp(indention) << "TypeOf_JtAttribute_GeometricTransform [";
 
-            for (Standard_Integer aX = 0; aX < 4; ++aX)
-            {
-                for (Standard_Integer aY = 0; aY < 4; ++aY)
-                {
-                    aMatrix(aX, aY) = static_cast<Standard_ShortReal> (aTransform->GetTrsf()[aY * 4 + aX]);
-                }
-            }
+            for(int i = 0; i<16; i++)
+                cout << aTransform->GetTrsf()[i] << ", ";
+            
+            cout << "]\n";
 
-            if (aMatrix(3, 3) == 0.f)
-            {
-                aMatrix(3, 3) = 1.f; // fix problem with homogeneous coordinates
-            }
-
-            aResult->Attributes.push_back(JTData_TransformAttributePtr(new JTData_TransformAttribute(aMatrix)));
-            */
+            
         }
         else if (anAttrib->IsKind(TypeOf_JtAttribute_Material))
         {
             Handle(JtAttribute_Material) aMaterial =
                 Handle(JtAttribute_Material)::DownCast(anAttrib);
-            cout << "   TypeOf_JtAttribute_Material \n";
-            /*
-            Eigen::Vector4f aAmbientColor(
-                static_cast<Standard_ShortReal> (aMaterial->AmbientColor()[0]),
-                static_cast<Standard_ShortReal> (aMaterial->AmbientColor()[1]),
-                static_cast<Standard_ShortReal> (aMaterial->AmbientColor()[2]),
-                static_cast<Standard_ShortReal> (aMaterial->AmbientColor()[3]));
+            cout << indentOp(indention) << "TypeOf_JtAttribute_Material [";
 
-            Eigen::Vector4f aDiffuseColor(
-                static_cast<Standard_ShortReal> (aMaterial->DiffuseColor()[0]),
-                static_cast<Standard_ShortReal> (aMaterial->DiffuseColor()[1]),
-                static_cast<Standard_ShortReal> (aMaterial->DiffuseColor()[2]),
-                static_cast<Standard_ShortReal> (aMaterial->DiffuseColor()[3]));
+            for (int i = 0; i < 4; i++)
+                cout << aMaterial->DiffuseColor()[i] << ", ";
 
-            Eigen::Vector4f aSpecularColor(
-                static_cast<Standard_ShortReal> (aMaterial->SpecularColor()[0]),
-                static_cast<Standard_ShortReal> (aMaterial->SpecularColor()[1]),
-                static_cast<Standard_ShortReal> (aMaterial->SpecularColor()[2]),
-                static_cast<Standard_ShortReal> (aMaterial->SpecularColor()[3]));
-
-            Eigen::Vector4f aEmissionColor(
-                static_cast<Standard_ShortReal> (aMaterial->EmissionColor()[0]),
-                static_cast<Standard_ShortReal> (aMaterial->EmissionColor()[1]),
-                static_cast<Standard_ShortReal> (aMaterial->EmissionColor()[2]),
-                static_cast<Standard_ShortReal> (aMaterial->EmissionColor()[3]));
-
-            Standard_ShortReal aShininess =
-                static_cast<Standard_ShortReal> (aMaterial->Shininess());
-
-            JTData_MaterialAttributePtr aMaterialAttrib(new JTData_MaterialAttribute(
-                aAmbientColor, aDiffuseColor, aSpecularColor, aEmissionColor, aShininess));
-
-            aResult->Attributes.push_back(aMaterialAttrib);
-            */
+            cout << "]\n";
+            aMaterial->AmbientColor();
+            aMaterial->SpecularColor();
+            aMaterial->EmissionColor();
+            
         }
+        else {
+            cout << indentOp(indention) << "Unknown Attribute type \n";
+        }
+        indention--;
     }
 
 }
@@ -289,6 +308,8 @@ void HandleAllChildren(const Handle(JtNode_Group)& theGroupRecord, const std::st
 {
     if (theGroupRecord->Children().IsEmpty())
         return;
+
+    indention++;
 
     for (Standard_Integer aChildIdx = 0; aChildIdx < (Standard_Integer)theGroupRecord->Children().Count(); ++aChildIdx)
     {
@@ -311,4 +332,6 @@ void HandleAllChildren(const Handle(JtNode_Group)& theGroupRecord, const std::st
         //  theGroupNode->Children.push_back(aChildNode);
         //}
     }
+
+    indention--;
 }

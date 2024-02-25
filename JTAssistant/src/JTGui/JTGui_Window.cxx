@@ -74,14 +74,14 @@ JTGui_Window::JTGui_Window (QScreen* theScreen)
   {
     QTimer* timer = new QTimer (this);
     connect (timer, SIGNAL (timeout()), this, SLOT (checkUpdateState()));
-    timer->start (10);
+    //timer->start (10);
   }
 
   // This timer drives forced scene updates with comparable large interval
   {
     QTimer* timer = new QTimer (this);
     connect (timer, SIGNAL (timeout()), this, SLOT (forceUpdate()));
-    timer->start (250);
+    //timer->start (250);
   }
 }
 
