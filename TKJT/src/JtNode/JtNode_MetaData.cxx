@@ -42,3 +42,12 @@ Standard_Integer JtNode_MetaData::Dump (Standard_OStream& theStream) const
   theStream << "JtNode_MetaData ";
   return JtNode_Group::Dump (theStream);
 }
+
+//=======================================================================
+//function : BindLateLoads
+//purpose  : Bind a late loaded property to the object
+//=======================================================================
+void JtNode_MetaData::BindLateLoads(const ListOfLateLoads& theLateLoads)
+{
+    myLateLoads = VectorOfLateLoads::FromCollection(theLateLoads);
+}

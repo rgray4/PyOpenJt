@@ -136,6 +136,9 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
         Handle(JtNode_Part) aPartRecord = Handle(JtNode_Part)::DownCast(theNodeRecord);
 
         const JtData_Object::VectorOfLateLoads& aLateLoaded = aPartRecord->LateLoads();
+
+        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "JtNode_Part LateLoad: " << aLateLoaded.Count() << "\n";
+        
         for (int i = 0; i < aLateLoaded.Count(); i++) {
             if (aLateLoaded[i]->DefferedObject().IsNull())
                 aLateLoaded[i]->Load();
@@ -154,14 +157,35 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
             }
         }
 
-        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "JtNode_Part LateLoad: " << aLateLoaded.Count() << "\n";
         HandleAllChildren(Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
     }
-    //else if (theNodeRecord->IsKind(TypeOf_JtNode_MetaData))
-    //{
-    //    cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "TypeOf_JtNode_MetaData \n";
-    //    //HandleAllChildren(Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
-    //}
+    else if (theNodeRecord->IsKind(TypeOf_JtNode_MetaData))
+    {
+        Handle(JtNode_MetaData) aPartRecord = Handle(JtNode_MetaData)::DownCast(theNodeRecord);
+        const JtData_Object::VectorOfLateLoads& aLateLoaded = aPartRecord->LateLoads();
+
+        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "TypeOf_JtNode_MetaData " << aLateLoaded.Count() << "\n";
+
+        for (int i = 0; i < aLateLoaded.Count(); i++) {
+            if (aLateLoaded[i]->DefferedObject().IsNull())
+                aLateLoaded[i]->Load();
+
+            Handle(JtData_Object)  prop = aLateLoaded[i]->DefferedObject();
+            if (!prop.IsNull() && prop->IsKind(TypeOf_JtElement_ProxyMetaData)) {
+                Handle(JtElement_ProxyMetaData) aProxyMetaDataElement =
+                    Handle(JtElement_ProxyMetaData)::DownCast(prop);
+
+                auto stream = aProxyMetaDataElement->getKeyValueStream();
+
+                writeKeyValueStream(stream, cout, indention);
+
+                aLateLoaded[i]->Unload();
+
+            }
+        }
+
+        HandleAllChildren(Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
+    }
     else if (theNodeRecord->IsKind(TypeOf_JtNode_RangeLOD))
     {
         Handle(JtNode_RangeLOD) aRangeLODRecord =

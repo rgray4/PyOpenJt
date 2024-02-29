@@ -113,7 +113,7 @@ Standard_Boolean JtData_Reader::ReadMbString(TCollection_ExtendedString& theStri
 //=======================================================================
 
 Standard_Boolean JtData_Reader::ReadMbString(std::wstring& theString)
-{
+{ 
     Jt_I32 aCount;
     if (!ReadI32(aCount))
         return Standard_False;
@@ -122,7 +122,7 @@ Standard_Boolean JtData_Reader::ReadMbString(std::wstring& theString)
     Standard_Integer Char;
     for (int i = 0; i < aCount; i++) {
         ReadI16(Char);
-        theString.push_back(Char);
+        theString.push_back((wchar_t) Char);
     }
 
     return Standard_True;

@@ -19,6 +19,8 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <codecvt>
+#include <string>
 
 IMPLEMENT_STANDARD_RTTIEXT(JtElement_ProxyMetaData, JtData_Object)
 
@@ -35,23 +37,32 @@ char strBuf[1024 * 64 + 2] ;
 //=======================================================================
 Standard_Boolean JtElement_ProxyMetaData::Read (JtData_Reader& theReader)
 {
+  std::wstring_convert<std::codecvt_utf8<wchar_t>> toUTF8;
+  std::wstring Key, Value;
+  Key.reserve(100);
+  Value.reserve(2048);
+  int i;
   keyValueStream.clear();
 
   Jt_U16 aVersion;
   theReader.ReadU16(aVersion);
 
-  TCollection_ExtendedString PropertyKey, Value;
-  theReader.ReadMbString(PropertyKey);
+  theReader.ReadMbString(Key);
 
-  while (PropertyKey.Length() > 0) {
-      assert(PropertyKey.LengthOfCString() < strBufSize);
+  while (Key.size() > 0) {
+
+      for(const char& Char: toUTF8.to_bytes(Key))
+          keyValueStream.push_back(Char);
+      keyValueStream.push_back('\0');
+
+      /*assert(PropertyKey.LengthOfCString() < strBufSize);
       Standard_PCharacter mchastr = strBuf;
       int length = PropertyKey.ToUTF8CString(mchastr);
 
       size_t i = 0;
       while (strBuf[i] != '\0')
           keyValueStream.push_back(strBuf[i++]);
-      keyValueStream.push_back('\0');
+      keyValueStream.push_back('\0');*/
 
       Jt_U8 ValueType;
       theReader.ReadU8(ValueType);
@@ -59,13 +70,17 @@ Standard_Boolean JtElement_ProxyMetaData::Read (JtData_Reader& theReader)
       switch (ValueType) {
       case 1:
           theReader.ReadMbString(Value);
-          assert(Value.LengthOfCString() < strBufSize);
+          for (const char& Char : toUTF8.to_bytes(Value))
+              keyValueStream.push_back(Char);
+          keyValueStream.push_back('\0');
+
+ /*         assert(Value.LengthOfCString() < strBufSize);
           length = Value.ToUTF8CString(mchastr);
 
           i = 0;
           while (strBuf[i] != '\0')
               keyValueStream.push_back(strBuf[i++]);
-          keyValueStream.push_back('\0');
+          keyValueStream.push_back('\0');*/
 
           break;
       case 2:
@@ -111,7 +126,7 @@ Standard_Boolean JtElement_ProxyMetaData::Read (JtData_Reader& theReader)
       }
 
       // read next potential Property key or NULL if end of table
-      theReader.ReadMbString(PropertyKey);
+      theReader.ReadMbString(Key);
   }
 
   return true;

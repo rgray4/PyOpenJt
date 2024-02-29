@@ -45,11 +45,3 @@ Standard_Integer JtNode_Part::Dump (Standard_OStream& theStream) const
   return JtNode_MetaData::Dump (theStream);
 }
 
-//=======================================================================
-//function : BindLateLoads
-//purpose  : Bind a late loaded property to the object
-//=======================================================================
-void JtNode_Part::BindLateLoads (const ListOfLateLoads& theLateLoads)
-{
-  myLateLoads = VectorOfLateLoads::FromCollection (theLateLoads);
-}
