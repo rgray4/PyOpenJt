@@ -5,7 +5,7 @@
 
 find_package(OpenCASCADE 	CONFIG 	REQUIRED)
 find_package(TBB 			CONFIG 	REQUIRED)
-find_package(ZLIB 					REQUIRED)
+find_package(ZLIB 					REQUIRED) 
 
 
 
@@ -30,7 +30,7 @@ foreach (SRC_DIR ${SRC_DIRS})
   if (IS_DIRECTORY ${CMAKE_SOURCE_PATH}/${SRC_DIR})
     list (APPEND TKJT_PACKAGES ${SRC_DIR})
   endif()
-endforeach()
+endforeach() 
 
 foreach (TKJT_PACKAGE ${TKJT_PACKAGES})
   file (GLOB_RECURSE PACKAGE_HEADERS ${CMAKE_SOURCE_PATH}/${TKJT_PACKAGE}/*.hxx)

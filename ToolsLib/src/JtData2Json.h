@@ -10,6 +10,7 @@
 #include <JtData_Model.hxx>
 
 #include <ostream>
+#include <vector>
 
 std::ostream& operator<<(std::ostream& os, const TCollection_ExtendedString& extstr);
 
@@ -28,3 +29,8 @@ inline std::ostream& operator<<(std::ostream& stream, const indentOp& val) {
 
 
 int writeModel(Handle(JtData_Model) model, std::ostream& out, int indent = 0, int config = 0);
+
+
+int writeKeyValueStream(const std::vector<char> &stream, std::ostream& out, int indent = 0, int config = 0);
+
+

@@ -23,7 +23,7 @@
 #include <JtAttribute_Material.hxx>
 #include <JtNode_Shape_TriStripSet.hxx>
 #include <JtAttribute_GeometricTransform.hxx>
-
+#include <JtElement_ProxyMetaData.hxx>
 #include <JtData2Json.h>
 
 #include <iostream>
@@ -114,6 +114,7 @@ static Handle(Standard_Type) TypeOf_JtNode_MetaData                 = STANDARD_T
 static Handle(Standard_Type) TypeOf_JtNode_Shape_TriStripSet        = STANDARD_TYPE(JtNode_Shape_TriStripSet);
 static Handle(Standard_Type) TypeOf_JtAttribute_Material			= STANDARD_TYPE(JtAttribute_Material);
 static Handle(Standard_Type) TypeOf_JtAttribute_GeometricTransform	= STANDARD_TYPE(JtAttribute_GeometricTransform);
+static Handle(Standard_Type) TypeOf_JtElement_ProxyMetaData         = STANDARD_TYPE(JtElement_ProxyMetaData);
 
 
 void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::string& thePrefix)
@@ -132,9 +133,28 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
     }
     else if (theNodeRecord->IsKind(TypeOf_JtNode_Part))
     {
+        Handle(JtNode_Part) aPartRecord = Handle(JtNode_Part)::DownCast(theNodeRecord);
 
+        const JtData_Object::VectorOfLateLoads& aLateLoaded = aPartRecord->LateLoads();
+        for (int i = 0; i < aLateLoaded.Count(); i++) {
+            if (aLateLoaded[i]->DefferedObject().IsNull())
+                aLateLoaded[i]->Load();
 
-        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "JtNode_Part \n";
+            Handle(JtData_Object)  prop = aLateLoaded[i]->DefferedObject();
+            if (prop->IsKind(TypeOf_JtElement_ProxyMetaData)) {
+                Handle(JtElement_ProxyMetaData) aProxyMetaDataElement =
+                    Handle(JtElement_ProxyMetaData)::DownCast(prop);
+
+                auto stream = aProxyMetaDataElement->getKeyValueStream();
+
+                writeKeyValueStream(stream, cout,  indention);
+
+                aLateLoaded[i]->Unload();
+
+            }
+        }
+
+        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "JtNode_Part LateLoad: " << aLateLoaded.Count() << "\n";
         HandleAllChildren(Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
     }
     //else if (theNodeRecord->IsKind(TypeOf_JtNode_MetaData))
@@ -217,6 +237,16 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
             const JtData_Object::VectorOfLateLoads& aLateLoaded = aMeshRecord->LateLoads();
 
             cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "TypeOf_JtNode_Shape_Vertex->JtNode_Shape_TriStripSet LateLoad: " << aLateLoaded.Count() << "\n";
+
+            for (int i = 0; i < aLateLoaded.Count(); i++) {
+                
+                if (aLateLoaded[i]->DefferedObject().IsNull())
+                    aLateLoaded[i]->Load();
+
+                auto prop = aLateLoaded[i]->DefferedObject();
+
+
+            }
 
 
             /*

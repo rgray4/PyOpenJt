@@ -118,6 +118,9 @@ public:
   //! Read a 2-byte character string.
   Standard_Boolean ReadMbString (TCollection_ExtendedString& theString);
 
+  //! Read a 2-byte character string into a std::wstring
+  Standard_Boolean ReadMbString(std::wstring& theString);
+
   Standard_Boolean ReadObject(char16_t &theObject)
   {
     Jt_I16 theValue;

@@ -44,7 +44,7 @@ source_group ("Header Files" FILES
 
 add_library( ToolsLib  STATIC 
 	${ProjectSources}
-	${ProjectHeaders}
+	${ProjectHeaders} 
 )
 
 add_dependencies (ToolsLib TKJT)

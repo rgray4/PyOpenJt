@@ -15,6 +15,7 @@
 // on <http://www.gnu.org/licenses/>.
 
 #include <JtData_Reader.hxx>
+#include <string>
 
 //=======================================================================
 //function : JtData_Reader
@@ -89,18 +90,40 @@ Standard_Boolean JtData_Reader::ReadSbString (TCollection_AsciiString& theString
 //purpose  : Read a 2-byte character string
 //=======================================================================
 
-Standard_Boolean JtData_Reader::ReadMbString (TCollection_ExtendedString& theString)
+Standard_Boolean JtData_Reader::ReadMbString(TCollection_ExtendedString& theString)
 {
-  Jt_I32 aCount;
-  if (!ReadI32 (aCount))
-    return Standard_False;
+    Jt_I32 aCount;
+    if (!ReadI32(aCount))
+        return Standard_False;
 
-  Standard_ExtCharacter* aStrBuffer = new Standard_ExtCharacter[aCount + 1];
-  if (!ReadArray (aStrBuffer, aCount))
-    return Standard_False;
-  aStrBuffer[aCount] = '\0';
-  theString = aStrBuffer;
-  delete[] aStrBuffer;
+    Standard_ExtCharacter* aStrBuffer = new Standard_ExtCharacter[aCount + 1];
+    if (!ReadArray(aStrBuffer, aCount))
+        return Standard_False;
+    aStrBuffer[aCount] = '\0';
+    theString = aStrBuffer;
+    delete[] aStrBuffer;
 
-  return Standard_True;
+    return Standard_True;
+}
+
+
+//=======================================================================
+//function : ReadMbStringStd
+//purpose  : Read a 2-byte character string into a std::wstring
+//=======================================================================
+
+Standard_Boolean JtData_Reader::ReadMbString(std::wstring& theString)
+{
+    Jt_I32 aCount;
+    if (!ReadI32(aCount))
+        return Standard_False;
+
+    theString.clear();
+    Standard_Integer Char;
+    for (int i = 0; i < aCount; i++) {
+        ReadI16(Char);
+        theString.push_back(Char);
+    }
+
+    return Standard_True;
 }
