@@ -72,16 +72,16 @@ JTGui_Window::JTGui_Window (QScreen* theScreen)
 
   // This timer drives the scene updates
   {
-    QTimer* timer = new QTimer (this);
-    connect (timer, SIGNAL (timeout()), this, SLOT (checkUpdateState()));
-    //timer->start (10);
+    timer1 = new QTimer (this);
+    connect (timer1, SIGNAL (timeout()), this, SLOT (checkUpdateState()));
+    timer1->start (10);
   }
 
   // This timer drives forced scene updates with comparable large interval
   {
-    QTimer* timer = new QTimer (this);
-    connect (timer, SIGNAL (timeout()), this, SLOT (forceUpdate()));
-    //timer->start (250);
+    timer2 = new QTimer (this);
+    connect (timer2, SIGNAL (timeout()), this, SLOT (forceUpdate()));
+    timer2->start (250);
   }
 }
 
@@ -185,6 +185,9 @@ void JTGui_Window::exposeEvent (QExposeEvent *event)
 void JTGui_Window::resizeEvent (QResizeEvent *event)
 {
   Q_UNUSED(event);
+
+  if (isClosing)
+      return;
 
   resizeGL();
 

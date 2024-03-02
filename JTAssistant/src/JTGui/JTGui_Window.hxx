@@ -100,6 +100,12 @@ public:
   //! Forces view clearing.
   void clearView();
 
+  // update timers
+  QTimer* timer1;
+  QTimer* timer2;
+
+  bool isClosing = false;
+
 public slots:
 
   //! Requests scene update.
@@ -180,6 +186,8 @@ private:
   bool myIsNeedToUpdate; //! Indicates when update requested.
 
   QSurfaceFormat myFormat; //! OpenGL format.
+
+  
 
   QOpenGLContext* myContext;  //!< OpenGl context.
   JTVis_ScenePtr myScene;     //!< Associated 3d scene.

@@ -575,6 +575,8 @@ void JTGui_MainWindow::closeEvent (QCloseEvent *theEvent)
 {
   //if (showExitPromptDialog (this) == QMessageBox::Yes)
   //{
+    myRenderWindow->isClosing = true;
+
     saveSettings();
     QMainWindow::closeEvent (theEvent);
   //}
