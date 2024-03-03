@@ -19,11 +19,16 @@
 #include <JtNode_Shape_TriStripSet.hxx>
 #include <JtNode_MetaData.hxx>
 #include <JtNode_Shape_Base.hxx>
-#include <JtProperty_LateLoaded.hxx>
-#include <JtAttribute_Material.hxx>
 #include <JtNode_Shape_TriStripSet.hxx>
+
+#include <JtProperty_LateLoaded.hxx>
+
+#include <JtAttribute_Material.hxx>
 #include <JtAttribute_GeometricTransform.hxx>
+
 #include <JtElement_ProxyMetaData.hxx>
+#include <JtElement_ShapeLOD_Vertex.hxx>
+
 #include <JtData2Json.h>
 
 #include <iostream>
@@ -115,6 +120,7 @@ static Handle(Standard_Type) TypeOf_JtNode_Shape_TriStripSet        = STANDARD_T
 static Handle(Standard_Type) TypeOf_JtAttribute_Material			= STANDARD_TYPE(JtAttribute_Material);
 static Handle(Standard_Type) TypeOf_JtAttribute_GeometricTransform	= STANDARD_TYPE(JtAttribute_GeometricTransform);
 static Handle(Standard_Type) TypeOf_JtElement_ProxyMetaData         = STANDARD_TYPE(JtElement_ProxyMetaData);
+static Handle(Standard_Type) TypeOf_JtElement_ShapeLOD_Vertex       = STANDARD_TYPE(JtElement_ShapeLOD_Vertex);
 
 
 void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::string& thePrefix)
@@ -140,20 +146,22 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
         cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "JtNode_Part LateLoad: " << aLateLoaded.Count() << "\n";
         
         for (int i = 0; i < aLateLoaded.Count(); i++) {
-            if (aLateLoaded[i]->DefferedObject().IsNull())
-                aLateLoaded[i]->Load();
+            if (aLateLoaded[i]->getSegmentType() == SegmentType::Meta_Data) {
+                if (aLateLoaded[i]->DefferedObject().IsNull())
+                    aLateLoaded[i]->Load();
 
-            Handle(JtData_Object)  prop = aLateLoaded[i]->DefferedObject();
-            if (prop->IsKind(TypeOf_JtElement_ProxyMetaData)) {
-                Handle(JtElement_ProxyMetaData) aProxyMetaDataElement =
-                    Handle(JtElement_ProxyMetaData)::DownCast(prop);
+                Handle(JtData_Object)  prop = aLateLoaded[i]->DefferedObject();
+                if (prop->IsKind(TypeOf_JtElement_ProxyMetaData)) {
+                    Handle(JtElement_ProxyMetaData) aProxyMetaDataElement =
+                        Handle(JtElement_ProxyMetaData)::DownCast(prop);
 
-                auto stream = aProxyMetaDataElement->getKeyValueStream();
+                    auto stream = aProxyMetaDataElement->getKeyValueStream();
 
-                writeKeyValueStream(stream, cout,  indention);
+                    //writeKeyValueStream(stream, cout,  indention);
 
-                aLateLoaded[i]->Unload();
+                    aLateLoaded[i]->Unload();
 
+                }
             }
         }
 
@@ -167,20 +175,22 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
         cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "TypeOf_JtNode_MetaData " << aLateLoaded.Count() << "\n";
 
         for (int i = 0; i < aLateLoaded.Count(); i++) {
-            if (aLateLoaded[i]->DefferedObject().IsNull())
-                aLateLoaded[i]->Load();
+            if (aLateLoaded[i]->getSegmentType() == SegmentType::Meta_Data) {
+                if (aLateLoaded[i]->DefferedObject().IsNull())
+                    aLateLoaded[i]->Load();
 
-            Handle(JtData_Object)  prop = aLateLoaded[i]->DefferedObject();
-            if (!prop.IsNull() && prop->IsKind(TypeOf_JtElement_ProxyMetaData)) {
-                Handle(JtElement_ProxyMetaData) aProxyMetaDataElement =
-                    Handle(JtElement_ProxyMetaData)::DownCast(prop);
+                Handle(JtData_Object)  prop = aLateLoaded[i]->DefferedObject();
+                if (!prop.IsNull() && prop->IsKind(TypeOf_JtElement_ProxyMetaData)) {
+                    Handle(JtElement_ProxyMetaData) aProxyMetaDataElement =
+                        Handle(JtElement_ProxyMetaData)::DownCast(prop);
 
-                auto stream = aProxyMetaDataElement->getKeyValueStream();
+                    auto stream = aProxyMetaDataElement->getKeyValueStream();
 
-                writeKeyValueStream(stream, cout, indention);
+                    //writeKeyValueStream(stream, cout, indention);
 
-                aLateLoaded[i]->Unload();
+                    aLateLoaded[i]->Unload();
 
+                }
             }
         }
 
@@ -267,8 +277,14 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
                 if (aLateLoaded[i]->DefferedObject().IsNull())
                     aLateLoaded[i]->Load();
 
-                auto prop = aLateLoaded[i]->DefferedObject();
+                Handle(JtData_Object) prop = aLateLoaded[i]->DefferedObject();
+                if (!prop.IsNull() && prop->IsKind(TypeOf_JtElement_ShapeLOD_Vertex)) {
+                    Handle(JtElement_ShapeLOD_Vertex) aProxyMetaDataElement = Handle(JtElement_ShapeLOD_Vertex)::DownCast(prop);
 
+                    cout << indentOp(indention + 1) << "Vertices: " << aProxyMetaDataElement->Vertices().Count() << "\n";
+                    aProxyMetaDataElement;
+                
+                }
 
             }
 

@@ -59,7 +59,7 @@ JtDecode_Int32CDP::EncodedDataHandle JtDecode_Int32CDP::loadCDP1 (JtData_Reader&
     aData = new JtDecode_Int32CDP_Arithmetic (theReader);
     break;
   default:
-    TRACE ("Unknown Codec (" + aCodec + ")!");
+    TRACE (std::string("Unknown Codec (") + std::to_string(aCodec) + ")!");
     return EncodedDataHandle();
   }
 
@@ -198,7 +198,7 @@ JtDecode_Int32CDP::EncodedDataHandle JtDecode_Int32CDP::loadCDP2 (JtData_Reader&
     break;
 
   default: // Unknown codec
-    TRACE ("Unknown Codec (" + aCodec + ")!");
+    TRACE (std::string("Unknown Codec (") + std::to_string(aCodec) + ")!");
     return EncodedDataHandle();
   }
 

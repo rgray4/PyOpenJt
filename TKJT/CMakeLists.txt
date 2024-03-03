@@ -18,6 +18,7 @@ set (TKJT_HEADERS)
 set (TKJT_SOURCES)
 set (TKJT_PACKAGES)
 
+add_definitions (-DTKJT_CERRTRACING)
 
 # =============================================================================
 # Define production steps : search sources

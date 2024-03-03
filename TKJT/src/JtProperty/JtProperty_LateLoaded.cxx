@@ -44,6 +44,8 @@ Standard_Boolean JtProperty_LateLoaded::Read (JtData_Reader& theReader)
     return Standard_False;
   }
 
+  mySegmentType = aType;
+
   if (theReader.Model()->MajorVersion() > 8)
   {
     Jt_I32 aPayloadObjectID, aReserved;

@@ -19,18 +19,27 @@
 
 #include <Message.hxx>
 #include <Message_Messenger.hxx>
+#include <iostream>
 
-#ifdef OCCT_DEBUG
-  #define MESSAGE(msg, type) \
-    ::Message::DefaultMessenger()->Send (TCollection_ExtendedString() + msg, type)
+#ifdef TKJT_CERRTRACING
+    #define TRACE(msg)   /*std::cerr << "TRACE: " << msg << '\n'*/;
+    #define INFO(msg)    /*std::cerr << "INFO: " << msg << '\n'*/;
+    #define WARNING(msg) /*std::cerr << "WARNING: " << msg << '\n'*/;
+    #define ALARM(msg)   std::cerr << "ALARM: " << msg << '\n';
+    #define FAIL(msg)    std::cerr << "FAIL: " << msg << '\n';
+
 #else
-  #define MESSAGE(msg, type)
+    #ifdef OCCT_DEBUG
+      #define MESSAGE(msg, type) \
+        ::Message::DefaultMessenger()->Send (TCollection_ExtendedString() + msg, type)
+    #else
+      #define MESSAGE(msg, type)
+    #endif
+
+    #define TRACE(msg)   MESSAGE(msg, Message_Trace)
+    #define INFO(msg)    MESSAGE(msg, Message_Info)
+    #define WARNING(msg) MESSAGE(msg, Message_Warning)
+    #define ALARM(msg)   MESSAGE(msg, Message_Alarm)
+    #define FAIL(msg)    MESSAGE(msg, Message_Fail)
 #endif
-
-#define TRACE(msg)   MESSAGE(msg, Message_Trace)
-#define INFO(msg)    MESSAGE(msg, Message_Info)
-#define WARNING(msg) MESSAGE(msg, Message_Warning)
-#define ALARM(msg)   MESSAGE(msg, Message_Alarm)
-#define FAIL(msg)    MESSAGE(msg, Message_Fail)
-
 #endif // _JtData_Message_HeaderFile

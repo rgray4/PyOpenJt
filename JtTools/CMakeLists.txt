@@ -16,6 +16,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 get_target_property (TKJT_INCLUDE_DIRS TKJT INTERFACE_INCLUDE_DIRECTORIES)
 get_target_property (ToolsLib_INCLUDE_DIRS ToolsLib INTERFACE_INCLUDE_DIRECTORIES)
 
+add_definitions (-DTKJT_CERRTRACING)
+
 # =============================================================================
 # Define production steps
 # =============================================================================

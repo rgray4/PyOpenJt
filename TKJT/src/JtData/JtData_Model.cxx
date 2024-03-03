@@ -94,13 +94,14 @@ Handle(JtNode_Partition) JtData_Model::Init()
 
   myMajorVersion = aMajorVersionStr.IntegerValue();
   myMinorVersion = aMinorVersionStr.IntegerValue();
-  TRACE("\n\nInfo: File version = " + myMajorVersion + "." + myMinorVersion);
+  TRACE(std::string("\n\nInfo: File version = ") + std::to_string(myMajorVersion) + "." + std::to_string(myMinorVersion));
 
   // Read byte order
   char aByteOrder;
   aFile.read(&aByteOrder, 1);
-  myIsFileLE = (aByteOrder == 0);
-  TRACE("Info: Byte order = " + (myIsFileLE ? "LE" : "BE"));
+  myIsFileLE = (aByteOrder == 0); 
+     
+  TRACE(std::string("Info: Byte order = ") + (myIsFileLE ? "LE" : "BE"));
 
   // Read reserved field, TOC offset, LSG Segment ID
   Jt_I32 aReservedField, aTOCOffset;
@@ -197,7 +198,7 @@ Standard_Boolean JtData_Model::readTOC(std::ifstream &theFile, const Jt_I32 theO
   TRACE("Info: Type statistics");
   for (TypeMap::Iterator aMapIter(aTypeMap); aMapIter.More(); aMapIter.Next())
   {
-    TRACE("Type " + aMapIter.Key() + " count " + aMapIter.Value());
+    TRACE(std::string("Type ") + std::to_string(aMapIter.Key()) + " count " + std::to_string(aMapIter.Value()));
   }
 
   return Standard_True;
@@ -470,7 +471,7 @@ Standard_Boolean JtData_Model::readElement(JtData_Reader &theReader,
   {
     Standard_Character aGuidString[128];
     anObjectTypeID.ToString(aGuidString);
-    TRACE("Info: Reading element with GUID " + aGuidString);
+    TRACE(std::string("Info: Reading element with GUID ") + aGuidString);
   }
 
   // Classify and create the object
@@ -530,7 +531,7 @@ Standard_Boolean JtData_Model::readElement(JtData_Reader &theReader,
   if (aBytesSpec > aReaderPos)
   {
     Standard_Size aBytesRest = aBytesSpec - aReaderPos;
-    WARNING("Warning: " + aBytesRest + " element bytes remained after reading, corrected");
+    WARNING(std::string("Warning: ") + std::to_string(aBytesRest) + " element bytes remained after reading, corrected");
     if (!theReader.Skip(aBytesRest))
       return Standard_False;
   }
@@ -553,7 +554,7 @@ Handle(JtData_Model) JtData_Model::FindSegment(const Jt_GUID &theGUID,
   {
     Standard_Character aGuidString[128];
     theGUID.ToString(aGuidString);
-    ALARM("Error: Failed to find segment with GUID: " + aGuidString);
+    ALARM(std::string("Error: Failed to find segment with GUID: ") + aGuidString);
     return Handle(JtData_Model)();
   }
 }
