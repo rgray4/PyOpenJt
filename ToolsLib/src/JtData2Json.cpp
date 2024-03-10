@@ -11,15 +11,38 @@ std::ostream& operator<<(std::ostream& os, const TCollection_ExtendedString& ext
 	return (os << str);
 }
 
+std::ostream& operator<<(std::ostream& os, const Jt_GUID& extstr)
+{
+	char str[128];
+	extstr.ToString(str);
+	return (os << str);
+}
+
 
 int writeModel(Handle(JtData_Model) model, std::ostream& out, int indent /* = 0 */ , int config /* = 0 */)
 {
-	out << indentOp(indent) << "{\n";
-	out << indentOp(indent) << "\t\"FileName\":\"" << model->FileName() << "\"\n";
-	out << indentOp(indent) << "\t\"MajorVersion\":\"" << model->MajorVersion() << "\"\n";
-	out << indentOp(indent) << "\t\"MinorVersion\":\"" << model->MinorVersion() << "\"\n";
-	out << indentOp(indent) << "}\n";
+	out << indentOp(indent) << "\"FileName\":\"" << model->FileName() << "\",\n";
+	out << indentOp(indent) << "\"MajorVersion\":\"" << model->MajorVersion() << "\",\n";
+	out << indentOp(indent) << "\"MinorVersion\":\"" << model->MinorVersion() << "\",\n";
+	if (config & dump_TOC) {
+		auto toc = model->getTOC();
 
+		if (toc.size() > 0) {
+			out << indentOp(indent) << "\"TocTable\": [";
+			indent++;
+			bool first = true;
+			for (auto it : toc){
+				if (first)
+					first = false;
+				else
+					out << ',';
+				out << "[\"" << it.GUID << "\"," << it.Type << ']';
+					
+			}
+			indent--;
+			out << "],\n";
+		}
+	}
 	return 0;
 }
 
@@ -47,9 +70,19 @@ int writeKeyValueStream(const std::vector<char>& stream, std::ostream& out, int 
 		}
 		else {
 			if (*it == '\n')
-				out << "\\n";
-			else if(*it == '\"')
-				out << "\\\"";
+				out << "\\\\n";
+			else if (*it == '\"')
+				out << "\\\\\"";
+			else if (*it == '\r')
+				out << "\\\\r";
+			else if (*it == '\b')
+				out << "\\\\b";
+			else if (*it == '\f')
+				out << "\\\\f";
+			else if (*it == '\t')
+				out << "\\\\t";
+			else if (*it == '\\')
+				out << "\\\\";
 			else
 				out << *it;
 		}

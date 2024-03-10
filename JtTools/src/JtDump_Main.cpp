@@ -34,6 +34,7 @@
 #include <iostream>
 #include <iomanip>
 #include <assert.h>
+#include <regex>
 
 //#include <Matrix.h>
 
@@ -41,9 +42,12 @@ using namespace std;
 
 std::ostream &outStream = std::cout;
 int indention = 0;
+int outFilter = dumpConfig::dump_all;
 
 void HandleAllChildren(const Handle(JtNode_Group)& theGroupRecord, const std::string& thePrefix);
 void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::string& thePrefix);
+void HandleAttributes(const Handle(JtNode_Base)& theNodeRecord);
+const std::vector<char>& HandleLateLoadsMeta(const JtData_Object::VectorOfLateLoads& aLateLoaded);
 
 int main(int argc, char* argv[])
 {
@@ -68,38 +72,48 @@ int main(int argc, char* argv[])
         indention++;
     }
 
+    bool first = true;
 
 	// go through Jt files
 	for (const auto& aarg : files) {
+
+        string fileName = regex_replace(aarg, std::regex("\\\\"), "/"); // replace 'def' -> 'klm'
+
+        if (files.size() > 1) {
+            if (first)
+                first = false;
+            else
+                outStream << ',';
+        }
 
         outStream << '{' << endl;
         indention++;
 
 
-		TCollection_ExtendedString aFileName(aarg.c_str(), Standard_True);
+		TCollection_ExtendedString aFileName(fileName.c_str(), Standard_True);
 
 
 		Handle(JtData_Model) rootModel =   new JtData_Model(aFileName);
 
-        writeModel(rootModel, outStream, indention);
 
 		if (rootModel.IsNull())
 			return 2;
 
 		Handle(JtNode_Partition) PartitionNode = rootModel->Init();
 
+        writeModel(rootModel, outStream, indention, outFilter);
 
-        RecurseDownTheTree(PartitionNode, aarg);
+        RecurseDownTheTree(PartitionNode, fileName);
 
 
-        outStream << '}' << endl;
         indention--;
+        outStream << '}' << endl;
 		
 	}
 
     if (files.size() > 1) {
-        outStream << ']' << endl;
         indention--;
+        outStream << ']' << endl;
     }
 
     assert(indention == 0);
@@ -131,133 +145,148 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
     {
         Handle(JtNode_Partition) aPartitionRecord = Handle(JtNode_Partition)::DownCast(theNodeRecord);
 
-        aPartitionRecord->FileName();
+        outStream << indentOp(indention) << "\"LSG\":\n";
+        outStream << indentOp(indention) << "{\n";
+        indention++; 
+        outStream << indentOp(indention) << "\"jt_type\":\"Partition\",\n";
+        outStream << indentOp(indention) << "\"name\":\"" << theNodeRecord->Name() << "\",\n";
 
-        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "JtNode_Partition \n";
-
+        HandleAttributes(theNodeRecord);
         HandleAllChildren( aPartitionRecord, thePrefix);
+
+        indention--;
+        outStream << indentOp(indention) << "}\n";
     }
     else if (theNodeRecord->IsKind(TypeOf_JtNode_Part))
     {
+        // cast to actuall type
         Handle(JtNode_Part) aPartRecord = Handle(JtNode_Part)::DownCast(theNodeRecord);
-
         const JtData_Object::VectorOfLateLoads& aLateLoaded = aPartRecord->LateLoads();
 
-        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "JtNode_Part LateLoad: " << aLateLoaded.Count() << "\n";
-        
-        for (int i = 0; i < aLateLoaded.Count(); i++) {
-            if (aLateLoaded[i]->getSegmentType() == SegmentType::Meta_Data) {
-                if (aLateLoaded[i]->DefferedObject().IsNull())
-                    aLateLoaded[i]->Load();
+        outStream << indentOp(indention) << "{\n";
+        indention++;
+        outStream << indentOp(indention) << "\"jt_type\":\"Part\",\n";
+        outStream << indentOp(indention) << "\"name\":\"" << theNodeRecord->Name() << "\",\n";
 
-                Handle(JtData_Object)  prop = aLateLoaded[i]->DefferedObject();
-                if (prop->IsKind(TypeOf_JtElement_ProxyMetaData)) {
-                    Handle(JtElement_ProxyMetaData) aProxyMetaDataElement =
-                        Handle(JtElement_ProxyMetaData)::DownCast(prop);
-
-                    auto stream = aProxyMetaDataElement->getKeyValueStream();
-
-                    //writeKeyValueStream(stream, cout,  indention);
-
-                    aLateLoaded[i]->Unload();
-
-                }
-            }
+        // handle late loaded properties
+        auto metaData = HandleLateLoadsMeta(aLateLoaded);
+        if (metaData.size() > 0) {
+            outStream << indentOp(indention) << "\"properties\":\n";
+            writeKeyValueStream(metaData, outStream, indention);
+            outStream << indentOp(indention) << ',';
         }
 
+        HandleAttributes(theNodeRecord);
         HandleAllChildren(Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
+
+        indention--;
+        outStream << indentOp(indention) << "}\n";
+
     }
     else if (theNodeRecord->IsKind(TypeOf_JtNode_MetaData))
     {
         Handle(JtNode_MetaData) aPartRecord = Handle(JtNode_MetaData)::DownCast(theNodeRecord);
         const JtData_Object::VectorOfLateLoads& aLateLoaded = aPartRecord->LateLoads();
 
-        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "TypeOf_JtNode_MetaData " << aLateLoaded.Count() << "\n";
+        outStream << indentOp(indention) << "{\n";
+        indention++;
+        outStream << indentOp(indention) << "\"jt_type\":\"MetaData\",\n";
+        outStream << indentOp(indention) << "\"name\":\"" << theNodeRecord->Name() << "\",\n";
 
-        for (int i = 0; i < aLateLoaded.Count(); i++) {
-            if (aLateLoaded[i]->getSegmentType() == SegmentType::Meta_Data) {
-                if (aLateLoaded[i]->DefferedObject().IsNull())
-                    aLateLoaded[i]->Load();
-
-                Handle(JtData_Object)  prop = aLateLoaded[i]->DefferedObject();
-                if (!prop.IsNull() && prop->IsKind(TypeOf_JtElement_ProxyMetaData)) {
-                    Handle(JtElement_ProxyMetaData) aProxyMetaDataElement =
-                        Handle(JtElement_ProxyMetaData)::DownCast(prop);
-
-                    auto stream = aProxyMetaDataElement->getKeyValueStream();
-
-                    //writeKeyValueStream(stream, cout, indention);
-
-                    aLateLoaded[i]->Unload();
-
-                }
-            }
+        // handle late loaded properties
+        auto metaData = HandleLateLoadsMeta(aLateLoaded);
+        if (metaData.size() > 0) {
+            outStream << indentOp(indention) << "\"properties\":\n";
+            writeKeyValueStream(metaData, outStream, indention);
+            outStream << indentOp(indention) << ',';
         }
 
+        HandleAttributes(theNodeRecord);
         HandleAllChildren(Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
+
+        indention--;
+        outStream << indentOp(indention) << "}\n";
+
     }
     else if (theNodeRecord->IsKind(TypeOf_JtNode_RangeLOD))
     {
         Handle(JtNode_RangeLOD) aRangeLODRecord =
             Handle(JtNode_RangeLOD)::DownCast(theNodeRecord);
 
-        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "JtNode_RangeLOD \n";
+        outStream << indentOp(indention) << "{\n";
+        indention++;
+        outStream << indentOp(indention) << "\"jt_type\":\"RangeLOD\",\n";
+        outStream << indentOp(indention) << "\"name\":\"" << theNodeRecord->Name() << "\",\n";
 
+        outStream << indentOp(indention) << "\"center\":["
+            << (aRangeLODRecord->Center().X) << ','
+            << (aRangeLODRecord->Center().Y) << ','
+            << (aRangeLODRecord->Center().Z) << "],\n";
+
+        outStream << indentOp(indention) << "\"limits\":[";
+        bool first = true;
+
+        for (Standard_Integer anIdx = 1; anIdx <= aRangeLODRecord->RangeLimits().Count(); ++anIdx){
+            if (first)
+                first = false;
+            else
+                outStream << ',';
+            outStream << aRangeLODRecord->RangeLimits()[anIdx];
+        }
+        outStream << "],\n";
+
+        HandleAttributes(theNodeRecord);
         HandleAllChildren(aRangeLODRecord, thePrefix);
 
-        /*
-        Eigen::Vector4f(
-            static_cast<Standard_ShortReal> (aRangeLODRecord->Center().X),
-            static_cast<Standard_ShortReal> (aRangeLODRecord->Center().Y),
-            static_cast<Standard_ShortReal> (aRangeLODRecord->Center().Z),
-            1.0);
+        indention--;
+        outStream << indentOp(indention) << "}\n";
 
-        if (!aRangeLODRecord->RangeLimits().IsEmpty())
-        {
-            for (Standard_Integer anIdx = 1; anIdx <= aRangeLODRecord->RangeLimits().Count(); ++anIdx)
-            {
-                aRangeLOD->Ranges().push_back(aRangeLODRecord->RangeLimits()[anIdx]);
-            }
-        }
-        else
-        {
-            aRangeLOD->Ranges().push_back(std::numeric_limits<Standard_ShortReal>::max());
-
-            for (Standard_Integer anIdx = 1; anIdx < (Standard_Integer)aRangeLODRecord->Children().Count(); ++anIdx)
-            {
-                aRangeLOD->Ranges().push_back(0.0);
-            }
-        }
-
-        */
     }
     else if (theNodeRecord->IsKind(TypeOf_JtNode_LOD))
     {
-        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "JtNode_LOD \n";
+        outStream << indentOp(indention) << "{\n";
+        indention++;
+        outStream << indentOp(indention) << "\"jt_type\":\"LOD\",\n";
+        outStream << indentOp(indention) << "\"name\":\"" << theNodeRecord->Name() << "\",\n";
+
+        HandleAttributes(theNodeRecord);
         HandleAllChildren(Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
+
+        indention--;
+        outStream << indentOp(indention) << "}\n";
+
     }
     else if (theNodeRecord->IsKind(TypeOf_JtNode_Group))
     {
-        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "JtNode_Group \n";
-        HandleAllChildren( Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
-    }
+        outStream << indentOp(indention) << "{\n";
+        indention++;
+        outStream << indentOp(indention) << "\"jt_type\":\"Group\",\n";
+        outStream << indentOp(indention) << "\"name\":\"" << theNodeRecord->Name() << "\",\n";
+
+        HandleAttributes(theNodeRecord);
+        HandleAllChildren(Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
+
+        indention--;
+        outStream << indentOp(indention) << "}\n";
+        }
     else if (theNodeRecord->IsKind(TypeOf_JtNode_Instance))
     {
         Handle(JtNode_Instance) anInstance = Handle(JtNode_Instance)::DownCast(theNodeRecord);
 
-        // Note: To support JT Viewer operations (such as object hiding) it is convenient
-        // to eliminate instance nodes from the scene graph. In result, using of sub-tree
-        // references becomes impossible. But the actual geometric data is not duplicated
-        // by decomposing the node on the description part and data source part.
+        outStream << indentOp(indention) << "{\n";
+        indention++;
+        outStream << indentOp(indention) << "\"jt_type\":\"Instance\",\n";
+        outStream << indentOp(indention) << "\"name\":\"" << theNodeRecord->Name() << "\",\n";
+
+    
+        HandleAttributes(theNodeRecord);
 
         Handle(JtNode_Base) aNode = Handle(JtNode_Base)::DownCast(anInstance->Object());
-
-        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "JtNode_Instance \n";
-
-        indention++;
+        outStream << indentOp(indention) << "\"InstancedObject\":\n";
         RecurseDownTheTree(aNode, thePrefix);
-        indention--;
 
+        indention--;
+        outStream << indentOp(indention) << "}\n";
     }
     else if (theNodeRecord->IsKind(TypeOf_JtNode_Shape_Vertex))
     {
@@ -267,13 +296,18 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
         {
             Handle(JtNode_Shape_TriStripSet) aMeshRecord = Handle(JtNode_Shape_TriStripSet)::DownCast(aShapeRecord);
 
+            outStream << indentOp(indention) << "{\n";
+            indention++;
+            outStream << indentOp(indention) << "\"jt_type\":\"TriStripSet\",\n";
+            outStream << indentOp(indention) << "\"name\":\"" << theNodeRecord->Name() << "\",\n";
+
+
             aMeshRecord->Bounds();
             const JtData_Object::VectorOfLateLoads& aLateLoaded = aMeshRecord->LateLoads();
 
-            cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "TypeOf_JtNode_Shape_Vertex->JtNode_Shape_TriStripSet LateLoad: " << aLateLoaded.Count() << "\n";
 
             for (int i = 0; i < aLateLoaded.Count(); i++) {
-                
+                //cerr << "TriStripSet Late load SegType: " << aLateLoaded[i]->getSegmentType() << '\n';
                 if (aLateLoaded[i]->DefferedObject().IsNull())
                     aLateLoaded[i]->Load();
 
@@ -281,13 +315,56 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
                 if (!prop.IsNull() && prop->IsKind(TypeOf_JtElement_ShapeLOD_Vertex)) {
                     Handle(JtElement_ShapeLOD_Vertex) aProxyMetaDataElement = Handle(JtElement_ShapeLOD_Vertex)::DownCast(prop);
 
-                    cout << indentOp(indention + 1) << "Vertices: " << aProxyMetaDataElement->Vertices().Count() << "\n";
-                    aProxyMetaDataElement;
-                
+                    auto indices = aProxyMetaDataElement->Indices();
+                    auto vertices = aProxyMetaDataElement->Vertices();
+                    auto normals = aProxyMetaDataElement->Normals();
+
+                    outStream << indentOp(indention) << "\"NumIndices\":" << indices.Count() << ",\n";
+                    outStream << indentOp(indention) << "\"NumVertices\":" << vertices.Count() << ",\n";
+                    outStream << indentOp(indention) << "\"NumNormals\":" << normals.Count() << ",\n";
+
+                    outStream << indentOp(indention) << "\"Indices\":[";
+                    bool first = true;
+                    for (int l = 0; l < indices.Count(); l++) {
+                        if (first)
+                            first = false;
+                        else
+                            outStream << ',';
+                        outStream << indices.Data()[l];
+                    
+                    }
+                    outStream << "],\n";
+
+                    outStream << indentOp(indention) << "\"Vertices\":[";
+                    first = true;
+                    for (int l = 0; l < vertices.Count(); l++) {
+                        if (first)
+                            first = false;
+                        else
+                            outStream << ',';
+                        outStream << vertices.Data()[l];
+
+                    }
+                    outStream << "],\n";
+
+
+                    outStream << indentOp(indention) << "\"Normals\":[";
+                    first = true;
+                    for (int l = 0; l < normals.Count(); l++) {
+                        if (first)
+                            first = false;
+                        else
+                            outStream << ',';
+                        outStream << normals.Data()[l];
+
+                    }
+                    outStream << "]\n";
                 }
 
             }
 
+            indention--;
+            outStream << indentOp(indention) << "}\n";
 
             /*
             JTCommon_AABB aBox(
@@ -309,20 +386,50 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
                 mySources.Add(aMeshRecord, aMeshSource);
             }
             */
-         
-        }else
-            cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "TypeOf_JtNode_Shape_Vertex->Unknown \n";
+
+        }
+        else
+            cerr <<  "!!! '" << theNodeRecord->Name() << "' " << "TypeOf_JtNode_Shape_Vertex->Unknown \n";
     }
     else
     {
-        cout << indentOp(indention) << "'" << theNodeRecord->Name() << "' " << "Unknown node type \n";
+        cerr  << "!!! '" << theNodeRecord->Name() << "' " << "Unknown node type \n";
+    }
+
+}
+
+const std::vector<char>& HandleLateLoadsMeta(const JtData_Object::VectorOfLateLoads& aLateLoaded)
+{
+    for (int i = 0; i < aLateLoaded.Count(); i++) {
+        if (aLateLoaded[i]->getSegmentType() == SegmentType::Meta_Data) {
+            if (aLateLoaded[i]->DefferedObject().IsNull())
+                aLateLoaded[i]->Load();
+
+            Handle(JtData_Object)  prop = aLateLoaded[i]->DefferedObject();
+            if (!prop.IsNull() && prop->IsKind(TypeOf_JtElement_ProxyMetaData)) {
+                Handle(JtElement_ProxyMetaData) aProxyMetaDataElement =
+                    Handle(JtElement_ProxyMetaData)::DownCast(prop);
+
+                return aProxyMetaDataElement->getKeyValueStream();
+
+                //writeKeyValueStream(stream, outStream, indention);
+
+               // aLateLoaded[i]->Unload();
+
+            }
+        }
     }
 
 
+
+}
+
+void HandleAttributes(const Handle(JtNode_Base)& theNodeRecord)
+{
     // Extract attributes
 
     if (theNodeRecord->Attributes().IsEmpty())
-        return ;
+        return;
 
     for (Standard_Integer anIdx = 0; anIdx < (Standard_Integer)theNodeRecord->Attributes().Count(); ++anIdx)
     {
@@ -333,44 +440,54 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
 
         Handle(JtAttribute_Base) anAttrib = Handle(JtAttribute_Base)::DownCast(anObject);
 
-        if(anAttrib.IsNull())
+        if (anAttrib.IsNull())
             cerr << "Error! Invalid node attribute\n";
 
-        indention++;
 
         if (anAttrib->IsKind(TypeOf_JtAttribute_GeometricTransform))
         {
             Handle(JtAttribute_GeometricTransform) aTransform =
                 Handle(JtAttribute_GeometricTransform)::DownCast(anAttrib);
-            cout << indentOp(indention) << "TypeOf_JtAttribute_GeometricTransform [";
 
-            for(int i = 0; i<16; i++)
-                cout << aTransform->GetTrsf()[i] << ", ";
-            
-            cout << "]\n";
+            outStream << indentOp(indention) << "\"Attribute_GeometricTransform\": [";
+            bool first = true;
+            for (int i = 0; i < 16; i++) {
+                if (first)
+                    first = false;
+                else
+                    outStream << ',';
+                outStream << aTransform->GetTrsf()[i];
+            }
+            outStream << "]\n";
 
-            
         }
         else if (anAttrib->IsKind(TypeOf_JtAttribute_Material))
         {
             Handle(JtAttribute_Material) aMaterial =
                 Handle(JtAttribute_Material)::DownCast(anAttrib);
-            cout << indentOp(indention) << "TypeOf_JtAttribute_Material [";
 
-            for (int i = 0; i < 4; i++)
-                cout << aMaterial->DiffuseColor()[i] << ", ";
+            outStream << indentOp(indention) << "\"Attribute_MaterialDiffuseColor\": [";
+            bool first = true;
+            for (int i = 0; i < 4; i++) {
+                if (first)
+                    first = false;
+                else
+                    outStream << ',';
+                outStream << aMaterial->DiffuseColor()[i];
+            }
+            outStream << "]\n";
 
-            cout << "]\n";
             aMaterial->AmbientColor();
             aMaterial->SpecularColor();
             aMaterial->EmissionColor();
-            
+
         }
         else {
-            cout << indentOp(indention) << "Unknown Attribute type \n";
+            outStream << indentOp(indention) << "Unknown Attribute type \n";
         }
-        indention--;
+       
     }
+
 
 }
 
@@ -379,29 +496,30 @@ void HandleAllChildren(const Handle(JtNode_Group)& theGroupRecord, const std::st
     if (theGroupRecord->Children().IsEmpty())
         return;
 
+    outStream << indentOp(indention) << "\"children\":\n";
+    outStream << indentOp(indention) << "[\n";
     indention++;
+
+    bool first = true;
 
     for (Standard_Integer aChildIdx = 0; aChildIdx < (Standard_Integer)theGroupRecord->Children().Count(); ++aChildIdx)
     {
+        if (first)
+            first = false;
+        else
+            outStream << indentOp(indention) << ",\n";
+
         Handle(JtNode_Base) aChildRecord = Handle(JtNode_Base)::DownCast(theGroupRecord->Children()[aChildIdx]);
 
         if (aChildRecord.IsNull())
         {
+            outStream << indentOp(indention) << "{}";
             continue;
         }
 
         RecurseDownTheTree(aChildRecord, thePrefix);
-
-        //JTData_NodePtr aChildNode = PushNode(aChildRecord, thePrefix);
-
-        //Q_ASSERT_X(!aChildNode.isNull(),
-        //    "PushNode", "Error! Failed to extract node from LSG segment");
-
-       //if (!aChildNode.isNull())
-        //{       
-        //  theGroupNode->Children.push_back(aChildNode);
-        //}
     }
 
     indention--;
+    outStream << indentOp(indention) << "]\n";
 }

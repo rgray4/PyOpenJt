@@ -27,6 +27,7 @@
 #include <NCollection_DataMap.hxx>
 
 #include <fstream>
+#include <vector>
 
 class JtNode_Partition;
 
@@ -71,6 +72,17 @@ public:
   //! Return minor version of Jt file.
   Standard_Integer                  MinorVersion() const { return myMinorVersion; }
 
+  struct TocEntry {
+      TocEntry(const Jt_GUID& _GUID, int _Offset, int _Length, int _Type) :GUID(_GUID), Offset(_Offset), Length(_Length), Type(_Type) {}
+      Jt_GUID GUID;
+      int Offset;
+      int Length;
+      int Type;
+  };
+
+  //! Get access to the read TOC table
+  const std::vector < JtData_Model::TocEntry>& getTOC() { return stdToc; }
+
   DEFINE_STANDARD_RTTIEXT(JtData_Model,Standard_Transient)
 
 protected:
@@ -108,6 +120,9 @@ protected:
   Standard_Integer           myMinorVersion;
 
   NCollection_DataMap <Jt_GUID, Jt_I32, Jt_GUID> myTOC;
+
+  // adding addition toc table since OCC container are uterly stupid, can't interate over keys and values!
+  std::vector < JtData_Model::TocEntry> stdToc;
 };
 
 #endif // _JtData_Model_HeaderFile

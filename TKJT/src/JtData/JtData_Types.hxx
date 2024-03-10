@@ -126,12 +126,29 @@ public:
                            Jt_U8 theU8_1, Jt_U8 theU8_2, Jt_U8 theU8_3, Jt_U8 theU8_4,
                            Jt_U8 theU8_5, Jt_U8 theU8_6, Jt_U8 theU8_7, Jt_U8 theU8_8);
 
-  Standard_EXPORT Jt_GUID (const char* theString);
+  Standard_EXPORT Jt_GUID(const char* theString);
+
+  Standard_EXPORT Jt_GUID(const Jt_GUID& theOther)
+  {
+      this->data.U64[0] = theOther.data.U64[0];
+      this->data.U64[1] = theOther.data.U64[1];
+  }
 
   Standard_EXPORT Standard_Boolean ToString (char* theString) const;
 
   Standard_Boolean operator == (const Jt_GUID& theOther) const
-    { return ((U64 (0) ^ theOther.U64 (0)) | (U64 (1) ^ theOther.U64 (1))) == 0; }
+  {
+      return ((U64(0) ^ theOther.U64(0)) | (U64(1) ^ theOther.U64(1))) == 0;
+  }
+  Standard_Boolean operator < (const Jt_GUID& theOther) const
+  {
+      if (U64(0) < theOther.U64(0))
+          return true;
+      else if (U64(0) == theOther.U64(0))
+          if (U64(1) < theOther.U64(1))
+              return true;
+      return false;
+  }
 
   Standard_Boolean operator != (const Jt_GUID& theOther) const
     { return !operator == (theOther); }

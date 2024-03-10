@@ -175,6 +175,7 @@ Standard_Boolean JtData_Model::readTOC(std::ifstream &theFile, const Jt_I32 theO
   // Read TOC entries
   typedef NCollection_DataMap<Standard_Integer, Standard_Integer> TypeMap;
   TypeMap aTypeMap;
+  
   while (aCount--)
   {
     // Read Segment ID, offset, length, attributes
@@ -193,6 +194,11 @@ Standard_Boolean JtData_Model::readTOC(std::ifstream &theFile, const Jt_I32 theO
       aTypeMap.Bind(aType, 1);
 
     myTOC.Bind(aGUID, aOffset);
+    //stdToc.insert({ aGUID, aOffset });
+    //TocEntry tocItem(aGUID, int(aOffset), int(aLength), int(aType));
+
+    stdToc.emplace_back(aGUID, int(aOffset), int(aLength), int(aType));
+    //stdToc.push_back(tocItem);
   }
 
   TRACE("Info: Type statistics");

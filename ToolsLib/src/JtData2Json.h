@@ -8,11 +8,29 @@
  */
 
 #include <JtData_Model.hxx>
+#include <JtNode_MetaData.hxx>
 
 #include <ostream>
 #include <vector>
 
 std::ostream& operator<<(std::ostream& os, const TCollection_ExtendedString& extstr);
+
+enum dumpConfig {
+	dump_TOC = 1,
+	dump_LOD0 = 2,
+
+	dump_all  = INT_MAX
+};
+
+int writeModel(Handle(JtData_Model) model, std::ostream& out, int indent = 0, int config = 0);
+
+//int writePart(Handle(JtNode_Partition) model, std::ostream& out, int indent = 0, int config = 0);
+
+int writeMetaData(Handle(JtNode_MetaData) model, std::ostream& out, int indent = 0, int config = 0);
+
+
+int writeKeyValueStream(const std::vector<char> &stream, std::ostream& out, int indent = 0, int config = 0);
+
 
 struct indentOp {
 	indentOp(int level) : level(level) {}
@@ -26,11 +44,3 @@ inline std::ostream& operator<<(std::ostream& stream, const indentOp& val) {
 		stream << '\t';
 	return stream;
 }
-
-
-int writeModel(Handle(JtData_Model) model, std::ostream& out, int indent = 0, int config = 0);
-
-
-int writeKeyValueStream(const std::vector<char> &stream, std::ostream& out, int indent = 0, int config = 0);
-
-
