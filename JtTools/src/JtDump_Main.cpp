@@ -30,6 +30,8 @@
 #include <JtElement_ShapeLOD_Vertex.hxx>
 
 #include <JtData2Json.h>
+#include <JtLayer.h>
+#include <JtUsdMesh.h>
 
 #include <iostream>
 #include <iomanip>
@@ -173,7 +175,19 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
         if (metaData.size() > 0) {
             outStream << indentOp(indention) << "\"properties\":\n";
             writeKeyValueStream(metaData, outStream, indention);
-            outStream << indentOp(indention) << ',';
+
+            // handling layer in Part
+            std::vector<uint32_t> layer = ScanForLayer(metaData);
+            outStream << indentOp(indention) << ",\"layer\":[";
+            bool first = true;
+            for (const auto& layerNum : layer) {
+                if (first)
+                    first = false;
+                else
+                    outStream << ',';
+                outStream << layerNum;
+            }
+            outStream << "],\n";
         }
 
         HandleAttributes(theNodeRecord);
@@ -198,7 +212,29 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
         if (metaData.size() > 0) {
             outStream << indentOp(indention) << "\"properties\":\n";
             writeKeyValueStream(metaData, outStream, indention);
-            outStream << indentOp(indention) << ',';
+
+            // handling layer in top meta data
+            LayerInfo layerInfo = ScanForLayerFilter(metaData);
+            outStream << indentOp(indention) << ",\"layer-filter\":[";
+            bool first = true;
+            for (const auto& layerFilter : layerInfo.LayerMap) {
+                if (first)
+                    first = false;
+                else
+                    outStream << ',';
+                outStream << "{ \"name\":\"" << layerFilter.first << "\", \"layer\":[";
+                bool first2 = true;
+                for (const auto layerNum : layerFilter.second) {
+                    if (first2)
+                        first2 = false;
+                    else
+                        outStream << ',';
+                    outStream << layerNum;
+                }
+                outStream << "]}";
+            }
+            outStream << "],\n";
+            outStream << indentOp(indention) << "\"active-layer-filter\":\"" << layerInfo.ActiveLayerFilter << "\",\n";
         }
 
         HandleAttributes(theNodeRecord);
@@ -315,6 +351,8 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
                 if (!prop.IsNull() && prop->IsKind(TypeOf_JtElement_ShapeLOD_Vertex)) {
                     Handle(JtElement_ShapeLOD_Vertex) aProxyMetaDataElement = Handle(JtElement_ShapeLOD_Vertex)::DownCast(prop);
 
+                    writeUsdMesh(aProxyMetaDataElement, "TestMesh");
+
                     auto indices = aProxyMetaDataElement->Indices();
                     auto vertices = aProxyMetaDataElement->Vertices();
                     auto normals = aProxyMetaDataElement->Normals();
@@ -337,7 +375,7 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
 
                     outStream << indentOp(indention) << "\"Vertices\":[";
                     first = true;
-                    for (int l = 0; l < vertices.Count(); l++) {
+                    for (int l = 0; l < vertices.Count() * 3; l++) {
                         if (first)
                             first = false;
                         else
@@ -347,10 +385,12 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
                     }
                     outStream << "],\n";
 
+                    
+
 
                     outStream << indentOp(indention) << "\"Normals\":[";
                     first = true;
-                    for (int l = 0; l < normals.Count(); l++) {
+                    for (int l = 0; l < normals.Count() * 3; l++) {
                         if (first)
                             first = false;
                         else

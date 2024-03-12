@@ -18,7 +18,7 @@ get_target_property (TKJT_INCLUDE_DIRS TKJT INTERFACE_INCLUDE_DIRECTORIES)
 # Define production steps
 # =============================================================================
 
-
+ 
 file (GLOB_RECURSE ProjectSources src/*.cpp)
 file (GLOB_RECURSE ProjectHeaders src/*.h)
 
@@ -39,7 +39,6 @@ endif()
 source_group ("Header Files" FILES
   ${ProjectHeaders}
 )
-
 
 
 add_library( ToolsLib  STATIC 
