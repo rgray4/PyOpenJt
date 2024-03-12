@@ -42,10 +42,10 @@ caring the code through time.
 
 - [x] Fork project an modernize cMake and dependency management
 - [x] Packaging for Release builds and make first release
-- [ ] Access to late load part properties 
-- [ ] JtDump tool. Dumps all information as JSON 
+- [x] Access to late load part properties 
+- [x] JtDump tool. Dumps all information as JSON 
 - [ ] Python module and make LSG accessible
-- [ ] Jt Mesh to USD Mesh-Definition converter
+- [x] Jt Mesh to USD Mesh-Definition converter
 - [ ] Building Python Test-Cases with corner case Jts
 - [ ] Python PLMXML parser
 - [ ] Upgrade TKJT to Jt 10.5 specification 
