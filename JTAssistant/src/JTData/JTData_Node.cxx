@@ -41,6 +41,12 @@ Standard_Integer JTData_GroupNode::EstimateMemoryUsed (JTData_InstanceMap& theMa
   return aSize;
 }
 
+void JTData_GroupNode::applayLayerFilter(const std::vector<uint32_t>& LayerInfo)
+{
+    for (auto child : Children)
+        child->applayLayerFilter(LayerInfo);
+}
+
 // =======================================================================
 // function : EstimateMemoryUsed
 // purpose  :
@@ -48,6 +54,11 @@ Standard_Integer JTData_GroupNode::EstimateMemoryUsed (JTData_InstanceMap& theMa
 Standard_Integer JTData_InstanceNode::EstimateMemoryUsed (JTData_InstanceMap& /*theMap*/) const
 {
   return sizeof (JTData_InstanceNode) + sizeof (JTData_NodePtr);
+}
+
+void JTData_InstanceNode::applayLayerFilter(const std::vector<uint32_t>& LayerInfo)
+{
+    Reference->applayLayerFilter(LayerInfo);
 }
 
 // =======================================================================
@@ -61,6 +72,8 @@ JTData_PartitionNode::JTData_PartitionNode (const QString& theFileName)
   //
 }
 
+
+
 // =======================================================================
 // function : EstimateMemoryUsed
 // purpose  :
@@ -68,6 +81,22 @@ JTData_PartitionNode::JTData_PartitionNode (const QString& theFileName)
 Standard_Integer JTData_PartitionNode::EstimateMemoryUsed (JTData_InstanceMap& theMap) const
 {
   return JTData_GroupNode::EstimateMemoryUsed (theMap) + myFileName.toUtf8().length();
+}
+
+
+void JTData_PartNode::applayLayerFilter(const std::vector<uint32_t>& LayerInfo)
+{
+    SetVisible(false);
+    for (int layerInfor : LayerInfo) {
+        for (int layerNum : LayerNumbers) {
+            if (layerInfor == layerNum) {
+                SetVisible(true);
+                goto end;
+            }
+        }
+    }
+end:
+    return;
 }
 
 // =======================================================================

@@ -25,14 +25,17 @@
 #include <JtNode_RangeLOD.hxx>
 #include <JtNode_Instance.hxx>
 #include <JtNode_Partition.hxx>
+#include <JtNode_MetaData.hxx>
 #include <JtNode_Shape_TriStripSet.hxx>
 #include <JtElement_ShapeLOD_TriStripSet.hxx>
+#include <JtElement_ProxyMetaData.hxx>
 #include <JtAttribute_GeometricTransform.hxx>
 #include <JtAttribute_Material.hxx>
 
 #include "JTData_SceneGraph.hxx"
 
-//#include <JtData2Model.h>
+#include "../../ToolsLib/src/JtData2Json.h"
+
 
 #include <limits>
 #include <cmath>
@@ -97,8 +100,11 @@ static Handle(Standard_Type) TypeOf_JtNode_Group            = STANDARD_TYPE(JtNo
 static Handle(Standard_Type) TypeOf_JtNode_Instance         = STANDARD_TYPE(JtNode_Instance);
 static Handle(Standard_Type) TypeOf_JtNode_Shape_Vertex      = STANDARD_TYPE(JtNode_Shape_Vertex);
 static Handle(Standard_Type) TypeOf_JtNode_Shape_TriStripSet = STANDARD_TYPE(JtNode_Shape_TriStripSet);
+static Handle(Standard_Type) TypeOf_JtNode_MetaData         = STANDARD_TYPE(JtNode_MetaData);
 static Handle(Standard_Type) TypeOf_JtAttribute_Material    = STANDARD_TYPE(JtAttribute_Material);
 static Handle(Standard_Type) TypeOf_JtAttribute_GeometricTransform = STANDARD_TYPE(JtAttribute_GeometricTransform);
+static Handle(Standard_Type) TypeOf_JtElement_ProxyMetaData = STANDARD_TYPE(JtElement_ProxyMetaData);
+
 
 // =======================================================================
 // function : setNodeName
@@ -120,6 +126,35 @@ static void setNodeName (const Handle(JtNode_Base)& theNodeRecord,
   }
 
   theNode->SetName (aName);
+}
+
+const std::vector<char> HandleLateLoadsMeta(const JtData_Object::VectorOfLateLoads& aLateLoaded)
+{
+    //static std::vector<char> EmptyVector;
+    std::vector<char> ResultVector;
+    int numOfMeta = 0;
+    for (int i = 0; i < aLateLoaded.Count(); i++) {
+        if (aLateLoaded[i]->getSegmentType() == SegmentType::Meta_Data) {
+            if (aLateLoaded[i]->DefferedObject().IsNull())
+                aLateLoaded[i]->Load();
+
+            Handle(JtData_Object)  prop = aLateLoaded[i]->DefferedObject();
+            if (!prop.IsNull() && prop->IsKind(TypeOf_JtElement_ProxyMetaData)) {
+                Handle(JtElement_ProxyMetaData) aProxyMetaDataElement =
+                    Handle(JtElement_ProxyMetaData)::DownCast(prop);
+
+                auto newProps = aProxyMetaDataElement->getKeyValueStream();
+
+                ResultVector.insert(ResultVector.end(), newProps.begin(), newProps.end());
+                numOfMeta++;
+            }
+        }
+    }
+
+    if (numOfMeta > 1)
+        std::cout << "MoreMeta";
+
+    return ResultVector;
 }
 
 // =======================================================================
@@ -153,10 +188,44 @@ JTData_NodePtr JTData_SceneGraph::PushNode (const Handle(JtNode_Base)& theNodeRe
   }
   else if (theNodeRecord->IsKind (TypeOf_JtNode_Part))
   {
-    aResult = JTData_PartNodePtr (new JTData_PartNode);
+    Handle(JtNode_Part) aPartRecord = Handle(JtNode_Part)::DownCast(theNodeRecord);
+    JTData_PartNodePtr aPartNode = JTData_PartNodePtr(new JTData_PartNode);
+    aResult = JTData_PartNodePtr (aPartNode);
+    const JtData_Object::VectorOfLateLoads& aLateLoaded = aPartRecord->LateLoads();
+
+    // handle late loaded properties
+    auto metaData = HandleLateLoadsMeta(aLateLoaded);
+    std::stringstream tempOut;
+    writeKeyValueStream(metaData, tempOut);
+    aResult->Properties = tempOut.str().c_str();
+
+    // set the layer in part node
+    
+    aPartNode->setLayerNumbers(ScanForLayer(metaData));
 
     FillGroup (aResult.dynamicCast<JTData_GroupNode>(),
       Handle(JtNode_Group)::DownCast (theNodeRecord), thePrefix);
+  }
+  else if (theNodeRecord->IsKind(TypeOf_JtNode_MetaData))
+  {
+      Handle(JtNode_MetaData) aPartRecord = Handle(JtNode_MetaData)::DownCast(theNodeRecord);
+      const JtData_Object::VectorOfLateLoads& aLateLoaded = aPartRecord->LateLoads();
+      aResult = JTData_GroupNodePtr(new JTData_GroupNode);
+
+      // handle late loaded properties
+      auto metaData = HandleLateLoadsMeta(aLateLoaded);
+      std::stringstream tempOut;
+      writeKeyValueStream(metaData, tempOut);
+      aResult->Properties = tempOut.str().c_str();
+
+      // handling layer in top meta data
+      auto layerInfoTemp = ScanForLayerFilter(metaData);
+      // set only the first
+      if (layerInfo.LayerMap.size() == 0)
+          layerInfo = layerInfoTemp;
+
+      FillGroup(aResult.dynamicCast<JTData_GroupNode>(),
+      Handle(JtNode_Group)::DownCast(theNodeRecord), thePrefix);
   }
   else if (theNodeRecord->IsKind (TypeOf_JtNode_RangeLOD))
   {

@@ -75,13 +75,22 @@ public:
     myIsVisible = theIsVisisble;
   }
 
+  //! Apply layer filter recursive down to the Part Nodes which hold the layer number information 
+  virtual void applayLayerFilter(const std::vector<uint32_t>& ) {};
+
+
   //! Returns estimated memory consumption in bytes.
   virtual Standard_Integer EstimateMemoryUsed (JTData_InstanceMap& theMap) const = 0;
+
+  //! Properties to display as JSON
+  QString Properties;
+
 
 protected:
 
   //! Name of the node.
   QString myName;
+
 
   //! Node visibility flag.
   Standard_Boolean myIsVisible;
@@ -118,6 +127,9 @@ public:
 
   //! Returns estimated memory consumption in bytes.
   virtual Standard_Integer EstimateMemoryUsed (JTData_InstanceMap& theMap) const;
+
+  //! Apply layer filter recursive down to the Part Nodes which hold the layer number information 
+  virtual void applayLayerFilter(const std::vector<uint32_t>& LayerInfo);
 
 public:
 
@@ -178,9 +190,18 @@ public:
     //
   }
 
+  void setLayerNumbers(const std::vector<uint32_t>& newLayerNumbers) { LayerNumbers = newLayerNumbers; };
+
+  //! Apply layer filter recursive down to the Part Nodes which hold the layer number information 
+  virtual void applayLayerFilter(const std::vector<uint32_t>& LayerInfo);
+
 public:
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+private:
+    std::vector<uint32_t> LayerNumbers;
+
 };
 
 typedef QSharedPointer<JTData_PartNode> JTData_PartNodePtr;
@@ -198,6 +219,9 @@ public:
   {
     //
   }
+
+  //! Apply layer filter recursive down to the Part Nodes which hold the layer number information 
+  virtual void applayLayerFilter(const std::vector<uint32_t>& LayerInfo);
 
   //! Returns estimated memory consumption in bytes.
   virtual Standard_Integer EstimateMemoryUsed (JTData_InstanceMap& theMap) const;

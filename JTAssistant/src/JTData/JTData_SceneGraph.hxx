@@ -34,6 +34,8 @@
 
 #include <NCollection_IndexedDataMap.hxx>
 
+#include "../../ToolsLib/src/JtLayer.h"
+
 
 //! Data map to store instanced mesh triangulation sources.
 typedef NCollection_IndexedDataMap<Handle(JtData_Object), JTData_MeshNodeSourcePtr> JTData_MeshSources;
@@ -79,6 +81,9 @@ public:
 
   //! Returns reference to object mapping nodes to TreeWidget items.
   const QMap<JTData_Node*, QTreeWidgetItem*>& NodeToItemMap() { return myNodeToItemMap; }
+
+  //! Layer info of this scene
+  LayerInfo layerInfo;
 
 protected:
 

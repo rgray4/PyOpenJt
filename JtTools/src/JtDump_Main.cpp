@@ -440,6 +440,8 @@ void RecurseDownTheTree(const Handle(JtNode_Base)& theNodeRecord, const std::str
 
 const std::vector<char>& HandleLateLoadsMeta(const JtData_Object::VectorOfLateLoads& aLateLoaded)
 {
+    static std::vector<char> EmptyVector;
+
     for (int i = 0; i < aLateLoaded.Count(); i++) {
         if (aLateLoaded[i]->getSegmentType() == SegmentType::Meta_Data) {
             if (aLateLoaded[i]->DefferedObject().IsNull())
@@ -460,8 +462,7 @@ const std::vector<char>& HandleLateLoadsMeta(const JtData_Object::VectorOfLateLo
         }
     }
 
-
-
+    return EmptyVector;
 }
 
 void HandleAttributes(const Handle(JtNode_Base)& theNodeRecord)

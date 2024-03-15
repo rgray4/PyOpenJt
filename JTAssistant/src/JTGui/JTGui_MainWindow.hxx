@@ -27,6 +27,8 @@
 
 #include <JTCommon_Utils.hxx>
 
+#include "JsonModel.hxx"
+
 class JTGui_Window;
 
 namespace Ui {
@@ -129,6 +131,9 @@ public slots:
 
   //! Clears selection in Model browser.
   void clearSelection();
+
+  //! connected to layer filter combo box
+  void onCurrentLayerFilterChanged(int index);
 
 private slots:
 
@@ -252,6 +257,8 @@ private:
 private:
 
   Ui::MainWindow *ui; //!< User inter face object generated from MainWindow.ui file.
+
+  QJsonModel jsonModel;
 
   JTGui_Window* myRenderWindow; //!< Window for displaying 3d scene with OpenGL.
 

@@ -139,6 +139,8 @@ JTGui_MainWindow::JTGui_MainWindow (QWidget *parent) :
 
   myRenderWindow = new JTGui_Window();
 
+  ui->treeView_Properties->setModel(&jsonModel);
+
   QWidget* aContainer = QWidget::createWindowContainer (myRenderWindow);
   aContainer->setMinimumSize (100, 100);
   aContainer->setFocusPolicy (Qt::ClickFocus);
@@ -463,9 +465,37 @@ void JTGui_MainWindow::loadFile (const QString& theFileName)
 
     myRenderWindow->setScene (aNewScene);
 
+
     connect (aNewScene.data(), SIGNAL (RequestSelection (JTData_Node*)), this, SLOT (selectNode (JTData_Node*)));
     connect (aNewScene.data(), SIGNAL (RequestClearSelection()),         this, SLOT (clearSelection()));
     connect (aNewScene.data(), SIGNAL (LoadingComplete()),               this, SLOT (fileLoaded()));
+
+    // handling Layer-Filter if any
+    const auto& layerInfo = aGeometrySource->SceneGraph()->layerInfo;
+
+    if (layerInfo.LayerMap.size() > 0) {
+        ui->comboBox_LayerFilter->setEnabled(true);
+        for (const auto& layerFilter : layerInfo.LayerMap) {
+            ui->comboBox_LayerFilter->addItem(QString::fromUtf8(layerFilter.first.c_str()), (uint64_t)(&layerFilter.second));
+        }
+        int index = ui->comboBox_LayerFilter->findText(QString::fromUtf8(layerInfo.ActiveLayerFilter.c_str()));
+        if (index >= 0) {
+            ui->comboBox_LayerFilter->setCurrentIndex(index);
+        }
+
+        // connect signal for layer combo changed
+        connect (ui->comboBox_LayerFilter, SIGNAL (currentIndexChanged(int)),               this, SLOT (onCurrentLayerFilterChanged(int)));
+
+        // traverse scene graph and set visibility from layer information
+        auto itemData = ui->comboBox_LayerFilter->itemData(ui->comboBox_LayerFilter->currentIndex());
+        std::vector<uint32_t>* layerVector = (std::vector<uint32_t> *)(itemData.toULongLong());
+        aGeometrySource->SceneGraph()->Tree()->applayLayerFilter(*layerVector);
+    }
+    else {
+        ui->comboBox_LayerFilter->setEnabled(false);
+        ui->comboBox_LayerFilter->clear();
+    }
+
 
     ui->myTreeWidget->insertTopLevelItem (0, JTGui_SceneGraphTree::CreateTree (aGeometrySource->SceneGraph())->Root());
 
@@ -499,6 +529,13 @@ void JTGui_MainWindow::loadFile (const QString& theFileName)
   }
 
   myRenderWindow->requestActivate();
+}
+
+void JTGui_MainWindow::onCurrentLayerFilterChanged(int index)
+{
+    auto itemData = ui->comboBox_LayerFilter->itemData(index);
+    std::vector<int> *layerVector = (std::vector<int> *)(itemData.toULongLong());
+
 }
 
 //=======================================================================
@@ -792,6 +829,23 @@ void JTGui_MainWindow::selectionChanged()
 
         myRenderWindow->scene()->SelectNode (JTData_NodePtr (aNode), true);
       }
+    }
+
+    // do the handling filling the propertie view with data
+
+    static QByteArray emptyJSON = "{}";
+
+    if (ui->myTreeWidget->selectedItems().size() == 1 ) {
+        JTData_NodePtr aNode =
+            ui->myTreeWidget->selectedItems()[0]->data(0, Qt::UserRole).value<JTData_NodePtr>();
+
+        if(aNode->Properties.size() > 1)
+          jsonModel.loadJson(aNode->Properties.toUtf8());
+        else
+          jsonModel.loadJson(emptyJSON);
+    }
+    else {
+      jsonModel.loadJson(emptyJSON);
     }
   }
 }
