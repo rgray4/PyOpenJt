@@ -156,6 +156,16 @@ public:
   Jt_I32 Hash (const Jt_I32 theUpper) const
     { return ((&data.codes.U32)[0] ^ (&data.codes.U32)[1] ^ (&data.codes.U32)[2] ^ (&data.codes.U32)[3]) % theUpper; }
 
+  size_t operator()(const Jt_GUID& theKey) const 
+  {
+      return theKey.Hash(INT_MAX);
+  }
+
+  size_t operator()(const Jt_GUID& theKey1, const Jt_GUID& theKey2) const
+  {
+      return theKey1 == theKey2;
+  }
+
   static Standard_Integer HashCode (const Jt_GUID& theKey, const Standard_Integer theUpper)
     { return theKey.Hash (theUpper); }
 

@@ -47,9 +47,9 @@ if exist "C:\Program Files\Microsoft Visual Studio\2022\Community" (
   SET GENERATOR_STRING="Visual Studio 17 2022"
 ) else if exist "C:\Program Files\Microsoft Visual Studio\2022\Professional" (
   SET GENERATOR_STRING="Visual Studio 17 2022"
-) else if exist "C:\Program Files\Microsoft Visual Studio\2019\Community" (
+) else if exist "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community" (
   SET GENERATOR_STRING="Visual Studio 16 2019"
-) else if exist "C:\Program Files\Microsoft Visual Studio\2019\Professional" (
+) else if exist "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional" (
   SET GENERATOR_STRING="Visual Studio 16 2019"
 ) else (
   ECHO [91mERROR: compiler whas not found ! [0m
