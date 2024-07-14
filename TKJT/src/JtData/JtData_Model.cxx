@@ -115,6 +115,9 @@ Handle(JtNode_Partition) JtData_Model::Init()
     }
   }
 
+  //char guidBuf[100]; anLSGSegmentGUID.ToString(guidBuf);
+  //cerr << "LSG Guid:" << guidBuf << '\n';
+
   // Read TOC
   if (!readTOC(aFile, aTOCOffset))
   {
@@ -126,7 +129,7 @@ Handle(JtNode_Partition) JtData_Model::Init()
   Jt_I32 anLSGSegmentOffset;
   if (!myTOC.Find(anLSGSegmentGUID, anLSGSegmentOffset))
   {
-    ALARM("Error: No LSG segment");
+    cerr << "No LSG segment, TODO: Read only Meshes plain...\n";
     return Handle(JtNode_Partition)();
   }
   else
@@ -187,7 +190,13 @@ Standard_Boolean JtData_Model::readTOC(std::ifstream &theFile, const Jt_I32 theO
       return Standard_False;
     }
 
+    char guidBuf[100]; aGUID.ToString(guidBuf);
+
+
     const Standard_Integer aType = (aAttrib >> 24) & 0xFF;
+
+    //cerr << "TOC Entry: GUID:" << guidBuf << " Type:"<< aType << " Offsett:" << aOffset << " Length:" << aLength << " Attribute:" << aAttrib << '\n';
+
     if (aTypeMap.IsBound(aType))
       aTypeMap.ChangeFind(aType)++;
     else
@@ -204,7 +213,7 @@ Standard_Boolean JtData_Model::readTOC(std::ifstream &theFile, const Jt_I32 theO
   TRACE("Info: Type statistics");
   for (TypeMap::Iterator aMapIter(aTypeMap); aMapIter.More(); aMapIter.Next())
   {
-    TRACE(std::string("Type ") + std::to_string(aMapIter.Key()) + " count " + std::to_string(aMapIter.Value()));
+    //cerr << (std::string("Type ") + std::to_string(aMapIter.Key()) + " count " + std::to_string(aMapIter.Value())) << '\n';
   }
 
   return Standard_True;
@@ -238,29 +247,29 @@ Handle(JtData_Object) JtData_Model::readSegment(std::ifstream &theFile,
   JtData_Reader *aDataReaderPtr = &aReader;
   switch (aType)
   {
-  case 1:
-  case 2:
-  case 3:
-  case 4:
-  case 17:
-  case 18:
-  case 20:
-  case 24:
-  {
-    // read Compression Flag, Data Length, Algorithm
-    Jt_I32 aFlag;
-    Jt_I32 aDataLength;
-    Jt_U8 aAlgorithm;
-    if (!aReader.ReadI32(aFlag) || !aReader.ReadI32(aDataLength) || !aReader.ReadU8(aAlgorithm))
-    {
-      ALARM("Error: Failed to read compression flags of segment with offset " + theOffset);
-      return Handle(JtData_Object)();
-    }
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+      case 17:
+      case 18:
+      case 20:
+      case 24:
+      {
+        // read Compression Flag, Data Length, Algorithm
+        Jt_I32 aFlag;
+        Jt_I32 aDataLength;
+        Jt_U8 aAlgorithm;
+        if (!aReader.ReadI32(aFlag) || !aReader.ReadI32(aDataLength) || !aReader.ReadU8(aAlgorithm))
+        {
+          ALARM("Error: Failed to read compression flags of segment with offset " + theOffset);
+          return Handle(JtData_Object)();
+        }
 
-    // if compressed, replace the reader by a JtData_Inflate instance
-    if (aFlag == 2 && aAlgorithm == 2)
-      aDataReaderPtr = new JtData_Inflate(aReader, aDataLength - sizeof(Jt_U8));
-  }
+        // if compressed, replace the reader by a JtData_Inflate instance
+        if (aFlag == 2 && aAlgorithm == 2)
+          aDataReaderPtr = new JtData_Inflate(aReader, aDataLength - sizeof(Jt_U8));
+      }
   }
 
   // Read the segment data
@@ -403,9 +412,14 @@ Standard_Boolean JtData_Model::readLSGData(JtData_Reader &theReader,
               if (!aKeyStringProp.IsNull() && aKeyStringProp->Value() == anObjectNameKey)
                 anObject->BindName(aStringProp->Value());
             }
-          }
+          }//else
+           //   cerr << "Unknown Property\n";
         }
+      
+
       }
+      //else
+        //  cerr << "did not find a Property\n";
     }
 
     // bind the late loaded properties to the object
@@ -497,6 +511,9 @@ Standard_Boolean JtData_Model::readElement(JtData_Reader &theReader,
   else
   {
     // unknown object
+    Standard_Character aGuidString[128];
+    anObjectTypeID.ToString(aGuidString);
+    //cerr << std::string("Unknown Element with GUID ") + aGuidString << '\n';
     theObject = new JtData_Object();
     return theReader.Skip(anElemStart + anElemLength - theReader.GetPosition());
   }
@@ -528,9 +545,9 @@ Standard_Boolean JtData_Model::readElement(JtData_Reader &theReader,
   Standard_Size aReaderPos = theReader.GetPosition();
   if (aBytesSpec < aReaderPos)
   {
-#ifdef OCCT_DEBUG
+#ifdef _DEBUG
     Standard_Size aBytesRest = aReaderPos - aBytesSpec;
-    ALARM("Error: " + (aBytesRest) + " extra bytes were read after end of the element");
+    cerr << "Error: " << (aBytesRest) << " extra bytes were read after end of the element";
 #endif
     return Standard_False;
   }

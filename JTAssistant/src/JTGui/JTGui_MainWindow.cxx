@@ -440,6 +440,7 @@ void JTGui_MainWindow::loadFile (const QString& theFileName)
   myRenderWindow->setScene (JTVis_ScenePtr());
 
   ui->myTreeWidget->clear();
+  ui->comboBox_LayerFilter->clear();
 
   if (myCmdArgs.DoBenchmarking)
     JTCommon_Profiler::GetProfiler().Start();
