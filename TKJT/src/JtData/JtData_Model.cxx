@@ -17,6 +17,7 @@
 #include <JtData_Model.hxx>
 #include <JtData_FileReader.hxx>
 #include <JtData_Inflate.hxx>
+#include <JtData_InflateLzma.hxx>
 
 #include <JtData_Message.hxx>
 
@@ -297,6 +298,8 @@ Handle(JtData_Object) JtData_Model::readSegment(std::ifstream &theFile,
         // if compressed, replace the reader by a JtData_Inflate instance
         if (aFlag == 2 && aAlgorithm == 2)
           aDataReaderPtr = new JtData_Inflate(aReader, aDataLength - sizeof(Jt_U8));
+        else if (aFlag == 3 && aAlgorithm == 3)
+            aDataReaderPtr = new JtData_InflateLzma(aReader, aDataLength - sizeof(Jt_U8));
       }
   }
 
