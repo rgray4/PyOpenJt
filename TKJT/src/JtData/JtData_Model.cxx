@@ -104,19 +104,32 @@ Handle(JtNode_Partition) JtData_Model::Init()
   TRACE(std::string("Info: Byte order = ") + (myIsFileLE ? "LE" : "BE"));
 
   // Read reserved field, TOC offset, LSG Segment ID
-  Jt_I32 aReservedField, aTOCOffset;
+  Jt_I32 aReservedField;
+  Jt_U64 aTOCOffset;
   Jt_GUID anLSGSegmentGUID;
   {
     JtData_FileReader aReader(aFile, this);
-    if (!aReader.ReadI32(aReservedField) || !aReader.ReadI32(aTOCOffset) || !aReader.ReadGUID(anLSGSegmentGUID))
-    {
-      ALARM("Error: Failed to read TOC offset and LSG segment ID");
-      return Handle(JtNode_Partition)();
+
+    if (myMajorVersion < 10) {
+        Jt_I32 oldTocOffset;
+        if (!aReader.ReadI32(aReservedField) || !aReader.ReadI32(oldTocOffset) || !aReader.ReadGUID(anLSGSegmentGUID))
+        {
+            ALARM("Error: Failed to read TOC offset and LSG segment ID");
+            return Handle(JtNode_Partition)();
+        }
+        aTOCOffset = oldTocOffset;
+    }
+    else {
+        if (!aReader.ReadI32(aReservedField) || !aReader.ReadU64(aTOCOffset) || !aReader.ReadGUID(anLSGSegmentGUID))
+        {
+            ALARM("Error: Failed to read TOC offset and LSG segment ID");
+            return Handle(JtNode_Partition)();
+        }
     }
   }
 
-  //char guidBuf[100]; anLSGSegmentGUID.ToString(guidBuf);
-  //cerr << "LSG Guid:" << guidBuf << '\n';
+  char guidBuf[100]; anLSGSegmentGUID.ToString(guidBuf);
+  cerr << "LSG Guid:" << guidBuf << '\n';
 
   // Read TOC
   if (!readTOC(aFile, aTOCOffset))
@@ -126,7 +139,7 @@ Handle(JtNode_Partition) JtData_Model::Init()
   }
 
   // Find and read LSG segment
-  Jt_I32 anLSGSegmentOffset;
+  Jt_U64 anLSGSegmentOffset;
   if (!myTOC.Find(anLSGSegmentGUID, anLSGSegmentOffset))
   {
     cerr << "No LSG segment, TODO: Read only Meshes plain...\n";
@@ -183,19 +196,34 @@ Standard_Boolean JtData_Model::readTOC(std::ifstream &theFile, const Jt_I32 theO
   {
     // Read Segment ID, offset, length, attributes
     Jt_GUID aGUID;
-    Jt_I32 aOffset, aLength;
+    Jt_U64 aOffset;
+    Jt_U32 aLength;
     Jt_U32 aAttrib;
-    if (!aReader.ReadGUID(aGUID) || !aReader.ReadI32(aOffset) || !aReader.ReadI32(aLength) || !aReader.ReadU32(aAttrib))
-    {
-      return Standard_False;
+
+    if (myMajorVersion > 9) {
+
+        if (!aReader.ReadGUID(aGUID) || !aReader.ReadU64(aOffset) || !aReader.ReadU32(aLength) || !aReader.ReadU32(aAttrib))
+        {
+            return Standard_False;
+        }
+    }
+    else {
+        Jt_I32 oldOffset, oldLength;
+        if (!aReader.ReadGUID(aGUID) || !aReader.ReadI32(oldOffset) || !aReader.ReadI32(oldLength) || !aReader.ReadU32(aAttrib))
+        {
+            return Standard_False;
+        }
+        aOffset = oldOffset;
+        aLength = oldLength;
     }
 
     char guidBuf[100]; aGUID.ToString(guidBuf);
 
+    int lowerBits = aAttrib & 0xFF; 
 
     const Standard_Integer aType = (aAttrib >> 24) & 0xFF;
 
-    //cerr << "TOC Entry: GUID:" << guidBuf << " Type:"<< aType << " Offsett:" << aOffset << " Length:" << aLength << " Attribute:" << aAttrib << '\n';
+    cerr << "TOC Entry: GUID:" << guidBuf << " Type:"<< aType << " LowerBits:" << lowerBits << " Offsett:" << aOffset << " Length : " << aLength << " Attribute : " << aAttrib << '\n';
 
     if (aTypeMap.IsBound(aType))
       aTypeMap.ChangeFind(aType)++;
@@ -206,7 +234,7 @@ Standard_Boolean JtData_Model::readTOC(std::ifstream &theFile, const Jt_I32 theO
     //stdToc.insert({ aGUID, aOffset });
     //TocEntry tocItem(aGUID, int(aOffset), int(aLength), int(aType));
 
-    stdToc.emplace_back(aGUID, int(aOffset), int(aLength), int(aType));
+    stdToc.emplace_back(aGUID, aOffset, aLength, int(aType));
     //stdToc.push_back(tocItem);
   }
 
@@ -224,7 +252,7 @@ Standard_Boolean JtData_Model::readTOC(std::ifstream &theFile, const Jt_I32 theO
 //purpose  : Read objects from a JT file segment
 //=======================================================================
 Handle(JtData_Object) JtData_Model::readSegment(std::ifstream &theFile,
-                                                const Jt_I32 theOffset,
+                                                const Jt_U64 theOffset,
                                                 const Standard_Boolean theIsLSG) const
 {
   JtData_FileReader aReader(theFile, this, theOffset);
@@ -567,7 +595,7 @@ Standard_Boolean JtData_Model::readElement(JtData_Reader &theReader,
 //purpose  : Lookup offset of a segment in TOCs of this model and its ancestor models
 //=======================================================================
 Handle(JtData_Model) JtData_Model::FindSegment(const Jt_GUID &theGUID,
-                                               Jt_I32 &theOffset) const
+                                               Jt_U64 &theOffset) const
 {
   if (myTOC.Find(theGUID, theOffset))
     return this;
@@ -586,7 +614,7 @@ Handle(JtData_Model) JtData_Model::FindSegment(const Jt_GUID &theGUID,
 //function : ReadSegment
 //purpose  : Read object from a late loaded segment
 //=======================================================================
-Handle(JtData_Object) JtData_Model::ReadSegment(const Jt_I32 theOffset) const
+Handle(JtData_Object) JtData_Model::ReadSegment(const Jt_U64 theOffset) const
 {
   ifstream aFile;
   if (!open(aFile))

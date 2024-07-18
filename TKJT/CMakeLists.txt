@@ -6,7 +6,7 @@
 find_package(OpenCASCADE 	CONFIG 	REQUIRED)
 find_package(TBB 			CONFIG 	REQUIRED)
 find_package(ZLIB 					REQUIRED) 
-
+find_package(liblzma        CONFIG  REQUIRED)
 
 
 # =============================================================================
@@ -53,6 +53,7 @@ target_include_directories (TKJT PUBLIC ${OpenCASCADE_INCLUDE_DIR} )
 target_link_libraries(TKJT PRIVATE TKernel TKMath TKXSBase)
 target_link_libraries(TKJT PRIVATE ZLIB::ZLIB)
 target_link_libraries(TKJT PRIVATE TBB::tbb)
+target_link_libraries(TKJT PRIVATE liblzma::liblzma)
 
 if (BUILD_PROJECT STREQUAL "TKJT")
   set_target_properties (TKJT PROPERTIES PUBLIC_HEADER "${TKJT_HEADERS}")

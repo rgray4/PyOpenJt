@@ -52,10 +52,10 @@ public:
 
   //! Lookup offset of a segment in TOCs of this model and its ancestor models.
   Standard_EXPORT Handle(JtData_Model) FindSegment (const Jt_GUID& theGUID,
-                                                          Jt_I32&  theOffset) const;
+                                                          Jt_U64&  theOffset) const;
 
   //! Read object from a late loaded segment.
-  Standard_EXPORT Handle(JtData_Object) ReadSegment (const Jt_I32 theOffset) const;
+  Standard_EXPORT Handle(JtData_Object) ReadSegment (const Jt_U64 theOffset) const;
 
   //! Dump this entity.
   Standard_EXPORT Standard_Integer Dump (Standard_OStream& theStream) const;
@@ -73,10 +73,10 @@ public:
   Standard_Integer                  MinorVersion() const { return myMinorVersion; }
 
   struct TocEntry {
-      TocEntry(const Jt_GUID& _GUID, int _Offset, int _Length, int _Type) :GUID(_GUID), Offset(_Offset), Length(_Length), Type(_Type) {}
+      TocEntry(const Jt_GUID& _GUID, uint64_t _Offset, uint32_t _Length, int _Type) :GUID(_GUID), Offset(_Offset), Length(_Length), Type(_Type) {}
       Jt_GUID GUID;
-      int Offset;
-      int Length;
+      uint64_t Offset;
+      uint32_t Length;
       int Type;
   };
 
@@ -94,7 +94,7 @@ protected:
 
   //! Read object(s) from a JT file segment.
   Handle(JtData_Object) readSegment (std::ifstream&           theFile,
-                                     const Jt_I32             theOffset,
+                                     const Jt_U64             theOffset,
                                      const Standard_Boolean   theIsLSG) const;
   //! Read LSG segment data.
   Standard_Boolean readLSGData  (JtData_Reader&               theReader,
@@ -119,7 +119,7 @@ protected:
   Standard_Integer           myMajorVersion;
   Standard_Integer           myMinorVersion;
 
-  NCollection_DataMap <Jt_GUID, Jt_I32, Jt_GUID> myTOC;
+  NCollection_DataMap <Jt_GUID, Jt_U64, Jt_GUID> myTOC;
 
   // adding addition toc table since OCC container are uterly stupid, can't interate over keys and values!
   std::vector < JtData_Model::TocEntry> stdToc;

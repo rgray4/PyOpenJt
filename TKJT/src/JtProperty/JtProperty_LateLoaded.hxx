@@ -64,7 +64,7 @@ public:
 
 protected:
   Handle(JtData_Model) mySegModel;
-  Jt_I32               mySegOffset;
+  Jt_U64               mySegOffset;
   Jt_I32			   mySegmentType;
 
   Handle(JtData_Object) myDefferedObject;

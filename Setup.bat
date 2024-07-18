@@ -37,6 +37,7 @@ call %VCPKG_DIR%vcpkg.exe install ^
    tbb:x64-windows ^
    cli11:x64-windows ^
    tinygltf:x64-windows ^
+   liblzma:x64-windows ^
    zlib:x64-windows 
    
 
