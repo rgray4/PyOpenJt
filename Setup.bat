@@ -39,7 +39,9 @@ call %VCPKG_DIR%vcpkg.exe install ^
    cli11:x64-windows ^
    tinygltf:x64-windows ^
    liblzma:x64-windows ^
-   zlib:x64-windows 
+   zlib:x64-windows ^
+   tinygltf ^
+   draco
    
 
   

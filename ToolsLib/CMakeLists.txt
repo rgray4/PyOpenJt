@@ -9,6 +9,8 @@
 find_package(OpenCASCADE 	CONFIG 	REQUIRED)
 find_path(TINYGLTF_INCLUDE_DIRS "tiny_gltf.h")
 
+find_package(draco CONFIG REQUIRED)
+
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -48,7 +50,7 @@ add_library( ToolsLib  STATIC
 
 add_dependencies (ToolsLib TKJT)
 
-target_link_libraries (ToolsLib PRIVATE TKJT)
+target_link_libraries (ToolsLib PRIVATE TKJT  draco::draco)
 
 target_include_directories (ToolsLib 
 								PUBLIC 
