@@ -21,9 +21,22 @@ get_target_property (TKJT_INCLUDE_DIRS TKJT INTERFACE_INCLUDE_DIRECTORIES)
 # =============================================================================
 
  
-file (GLOB_RECURSE ProjectSources src/*.cpp)
-file (GLOB_RECURSE ProjectHeaders src/*.h)
 
+#file (GLOB_RECURSE ProjectSources src/*.cpp)
+set (ProjectSources
+	src/JtData2Json.cpp 
+	src/JtLayer.cpp 
+	src/JtUsdMesh.cpp 
+	src/JtGltfMesh.cpp
+)
+
+#file (GLOB_RECURSE ProjectHeaders src/*.h)
+set (ProjectHeaders 
+	src/JtData2Json.h 
+	src/JtLayer.h 
+	src/JtUsdMesh.h 
+	src/JtGltfMesh.h 
+)
 
 if(WIN32)
   add_definitions (-DWNT -DWINVER=0x0500)
