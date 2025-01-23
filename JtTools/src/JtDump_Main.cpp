@@ -553,7 +553,7 @@ void HandleAttributes(const Handle(JtNode_Base)& theNodeRecord)
                     *outStream << ',';
                 *outStream << aTransform->GetTrsf()[i];
             }
-            *outStream << "]\n";
+            *outStream << "],\n";
 
         }
         else if (anAttrib->IsKind(TypeOf_JtAttribute_Material))
@@ -570,7 +570,7 @@ void HandleAttributes(const Handle(JtNode_Base)& theNodeRecord)
                     *outStream << ',';
                 *outStream << aMaterial->DiffuseColor()[i];
             }
-            *outStream << "]\n";
+            *outStream << "],\n";
 
             aMaterial->AmbientColor();
             aMaterial->SpecularColor();
